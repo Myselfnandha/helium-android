@@ -15,6 +15,7 @@ public final class ExtensionItem {
     private final boolean mIsEnabled;
     @Nullable private final String mOptionsUrl;
     private final boolean mIsBundled;
+    @Nullable private final String mContentScript;
 
     public ExtensionItem(
             @NonNull String id,
@@ -24,6 +25,18 @@ public final class ExtensionItem {
             boolean isEnabled,
             @Nullable String optionsUrl,
             boolean isBundled) {
+        this(id, name, version, description, isEnabled, optionsUrl, isBundled, null);
+    }
+
+    public ExtensionItem(
+            @NonNull String id,
+            @NonNull String name,
+            @NonNull String version,
+            @NonNull String description,
+            boolean isEnabled,
+            @Nullable String optionsUrl,
+            boolean isBundled,
+            @Nullable String contentScript) {
         mId = Objects.requireNonNull(id, "id must not be null");
         mName = Objects.requireNonNull(name, "name must not be null");
         mVersion = Objects.requireNonNull(version, "version must not be null");
@@ -31,6 +44,7 @@ public final class ExtensionItem {
         mIsEnabled = isEnabled;
         mOptionsUrl = optionsUrl;
         mIsBundled = isBundled;
+        mContentScript = contentScript;
     }
 
     @NonNull
@@ -66,9 +80,14 @@ public final class ExtensionItem {
         return mIsBundled;
     }
 
+    @Nullable
+    public String getContentScript() {
+        return mContentScript;
+    }
+
     @NonNull
     public ExtensionItem withEnabled(boolean enabled) {
-        return new ExtensionItem(mId, mName, mVersion, mDescription, enabled, mOptionsUrl, mIsBundled);
+        return new ExtensionItem(mId, mName, mVersion, mDescription, enabled, mOptionsUrl, mIsBundled, mContentScript);
     }
 
     @Override

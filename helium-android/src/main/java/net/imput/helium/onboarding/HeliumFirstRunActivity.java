@@ -93,7 +93,12 @@ public class HeliumFirstRunActivity extends AppCompatActivity {
     }
 
     private void launchBrowserAndFinish() {
-        // Return OK to Chromium's FirstRunFlowSequencer and finish
+        if (isTaskRoot()) {
+            Intent intent = new Intent(this, net.imput.helium.browser.HeliumMainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        }
+        // Return OK to parent and finish
         setResult(Activity.RESULT_OK);
         finish();
     }

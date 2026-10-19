@@ -11,21 +11,44 @@
 
     <application
         android:label="@string/helium_app_name"
-        android:icon="@drawable/ic_helium_logo"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.DayNight.NoActionBar">
+
+        <!-- Primary Browser Window (App Launcher & Default Browser Entry) -->
+        <activity
+            android:name="net.imput.helium.browser.HeliumMainActivity"
+            android:exported="true"
+            android:label="@string/helium_app_name"
+            android:launchMode="singleTask"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <!-- Web Browsing Intent Filter -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+            </intent-filter>
+        </activity>
 
         <!-- First-Run Setup Wizard Activity -->
         <activity
             android:name="net.imput.helium.onboarding.HeliumFirstRunActivity"
-            android:exported="false"
+            android:exported="true"
             android:configChanges="orientation|screenSize|screenLayout"
             android:windowSoftInputMode="adjustResize" />
 
         <!-- Extension Manager Activity -->
         <activity
             android:name="net.imput.helium.extensions.HeliumExtensionsActivity"
-            android:exported="false"
+            android:exported="true"
             android:label="@string/extensions_title"
             android:configChanges="orientation|screenSize|screenLayout" />
 

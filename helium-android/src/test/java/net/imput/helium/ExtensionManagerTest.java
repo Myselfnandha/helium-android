@@ -34,6 +34,13 @@ public class ExtensionManagerTest {
         assertFalse(disabled.isEnabled());
         assertEquals("test_id", disabled.getId());
         assertNotEquals(item, disabled);
+
+        // Content script verification
+        ExtensionItem itemWithScript = new ExtensionItem(
+                "script_ext", "Script Ext", "2.0.0", "Desc", true, null, false, "console.log('helium');"
+        );
+        assertEquals("console.log('helium');", itemWithScript.getContentScript());
+        assertEquals("console.log('helium');", itemWithScript.withEnabled(false).getContentScript());
     }
 
     @Test
