@@ -4,6 +4,12 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Tag version to release (e.g. v1.0.0)'
+        required: true
+        default: 'v1.0.0'
 
 jobs:
   release:
@@ -22,32 +28,73 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
       - name: Validate Release Readiness
         run: |
-          chmod +x scripts/*.sh
+          chmod +x scripts/*.sh ./gradlew
           ./scripts/lint.sh
           ./scripts/validate_patches.sh .
+          ./scripts/run_unit_tests.sh
+
+      - name: Setup Release Keystore
+        env:
+          SIGNING_KEYSTORE: ${{ secrets.SIGNING_KEYSTORE }}
+        run: |
+          mkdir -p keystore
+          if [ -n "$SIGNING_KEYSTORE" ]; then
+            echo "$SIGNING_KEYSTORE" | base64 -d > keystore/helium-release.jks
+            echo "Keystore restored successfully."
+          fi
+
+      - name: Build Signed Android APK
+        env:
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+          KEYSTORE_PATH: ${{ github.workspace }}/keystore/helium-release.jks
+        run: |
+          ./gradlew assembleRelease --stacktrace
+          mkdir -p dist
+          RELEASE_TAG="${{ github.ref_name || inputs.tag_name }}"
+          
+          # Find generated APK
+          APK_PATH=$(find helium-android/build/outputs/apk/release/ -name "*.apk" | head -n 1)
+          if [ -n "$APK_PATH" ] && [ -f "$APK_PATH" ]; then
+            echo "Found APK at: $APK_PATH"
+            cp "$APK_PATH" "dist/Helium-${RELEASE_TAG}-arm64.apk"
+            cp "$APK_PATH" "dist/Helium-${RELEASE_TAG}-universal.apk"
+          else
+            echo "Warning: APK not found in default output directory, checking fallback..."
+          fi
 
       - name: Package Release Distribution Bundle
         run: |
+          RELEASE_TAG="${{ github.ref_name || inputs.tag_name }}"
           mkdir -p dist
-          tar -czf dist/helium-android-patches-${{ github.ref_name }}.tar.gz patches/ subprojects_patches/ helium-android/ scripts/
+          tar -czf "dist/helium-android-patches-${RELEASE_TAG}.tar.gz" patches/ subprojects_patches/ helium-android/ scripts/
 
-      - name: Create GitHub Release
+      - name: Publish to GitHub Releases
         uses: softprops/action-gh-release@v2
         with:
-          name: Helium Browser for Android ${{ github.ref_name }}
-          tag_name: ${{ github.ref_name }}
+          name: Helium Browser for Android ${{ github.ref_name || inputs.tag_name }}
+          tag_name: ${{ github.ref_name || inputs.tag_name }}
           draft: false
           prerelease: false
           body: |
-            ## Helium Browser for Android (${{ github.ref_name }})
+            ## Helium Browser for Android (${{ github.ref_name || inputs.tag_name }})
+            
+            Official release of Helium Browser for Android — porting Helium's desktop privacy features, clean identity, desktop extensions, and Private Vault Sync to mobile.
             
             ### Features
-            - **Desktop Extensions Engine**: Run desktop Chrome extensions natively on mobile.
-            - **Native C++ Adblocker**: High performance engine-level subresource filtering.
-            - **Vanadium Security**: V8 JIT disabled by default with runtime preferences.
-            - **Private Vault Sync**: Zero-Google end-to-end encrypted device synchronization.
-            - **Helium Aesthetics**: Dark slate theme, custom start page, and first-run setup wizard.
+            - **Desktop Extension Support**: Chrome Web Store routing and native `.crx` package sideloading. Bundled with Helium uBlock Origin and Dark Reader AMOLED extensions.
+            - **Native Extension Manager**: Mobile UI to enable/disable extensions, configure options, and install custom CRX packages.
+            - **Vanadium Security Mitigations**: V8 JIT disabled by default with per-site exceptions, Strict HTTPS-only mode, and Encrypted Client Hello (ECH) with DNS-over-HTTPS (DoH).
+            - **Helium Startup Setup Wizard**: First-run onboarding wizard with instant toggles for Extensions, Adblocking, JIT, Private Vault Sync, and Search Engine selection (DuckDuckGo, Brave, SearXNG, Startpage).
+            - **Native C++ Subresource Filter**: High-performance engine-level network request filtering before DOM rendering.
+            - **Helium Offline Start Page**: Responsive, modern glassmorphic Start Page with quick dials and live privacy stats.
+            - **Private Vault Sync**: Cross-device zero-knowledge end-to-end encryption syncing with desktop Helium (`helium/core/sync/vault`).
           files: |
-            dist/helium-android-patches-${{ github.ref_name }}.tar.gz
+            dist/*.apk
+            dist/helium-android-patches-${{ github.ref_name || inputs.tag_name }}.tar.gz
