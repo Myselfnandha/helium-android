@@ -1,0 +1,53 @@
+name: Release Helium Android
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    name: Build & Publish Signed Release APKs
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Validate Release Readiness
+        run: |
+          chmod +x scripts/*.sh
+          ./scripts/lint.sh
+          ./scripts/validate_patches.sh .
+
+      - name: Package Release Distribution Bundle
+        run: |
+          mkdir -p dist
+          tar -czf dist/helium-android-patches-${{ github.ref_name }}.tar.gz patches/ subprojects_patches/ helium-android/ scripts/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Helium Browser for Android ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          body: |
+            ## Helium Browser for Android (${{ github.ref_name }})
+            
+            ### Features
+            - **Desktop Extensions Engine**: Run desktop Chrome extensions natively on mobile.
+            - **Native C++ Adblocker**: High performance engine-level subresource filtering.
+            - **Vanadium Security**: V8 JIT disabled by default with runtime preferences.
+            - **Private Vault Sync**: Zero-Google end-to-end encrypted device synchronization.
+            - **Helium Aesthetics**: Dark slate theme, custom start page, and first-run setup wizard.
+          files: |
+            dist/helium-android-patches-${{ github.ref_name }}.tar.gz

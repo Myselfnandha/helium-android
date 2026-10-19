@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Helium Dark Palette: Deep obsidian slate & neon cyan -->
+    <color name="helium_primary">#06b6d4</color>
+    <color name="helium_primary_variant">#0891b2</color>
+    <color name="helium_accent">#22d3ee</color>
+    <color name="helium_accent_glow">#67e8f9</color>
+    
+    <color name="helium_bg">#090d16</color>
+    <color name="helium_card_bg">#0f172a</color>
+    <color name="helium_card_border">#1e293b</color>
+    
+    <color name="helium_text_primary">#f8fafc</color>
+    <color name="helium_text_secondary">#94a3b8</color>
+    <color name="helium_text_muted">#64748b</color>
+    
+    <!-- Status / Shield accents -->
+    <color name="helium_shield_active">#10b981</color>
+    <color name="helium_shield_warning">#fbbf24</color>
+    <color name="helium_shield_danger">#f87171</color>
+</resources>

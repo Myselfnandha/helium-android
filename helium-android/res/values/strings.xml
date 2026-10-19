@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="helium_app_name">Helium Browser</string>
+    <string name="helium_tagline">Fast. Private. Extensible.</string>
+    
+    <!-- Onboarding Wizard -->
+    <string name="onboarding_title">Welcome to Helium</string>
+    <string name="onboarding_subtitle">Configure your privacy and performance baseline. Every module can be reconfigured in Settings anytime.</string>
+    <string name="onboarding_btn_start">Start Browsing</string>
+    
+    <!-- Module: Extensions -->
+    <string name="module_extensions_title">Desktop Extensions</string>
+    <string name="module_extensions_desc">Run desktop Chrome extensions (including uBlock Origin) natively on Android.</string>
+    
+    <!-- Module: Adblocker -->
+    <string name="module_adblock_title">Native C++ Adblocker</string>
+    <string name="module_adblock_desc">Engine-level network request filtering before DOM rendering for maximum speed.</string>
+    
+    <!-- Module: JIT Hardening -->
+    <string name="module_jit_title">Vanadium JIT Protection</string>
+    <string name="module_jit_desc">Disable V8 Just-In-Time compilation to eliminate memory safety attack vectors.</string>
+    
+    <!-- Module: Vault Sync -->
+    <string name="module_sync_title">Private Vault Sync</string>
+    <string name="module_sync_desc">Pair with your desktop Helium instance via zero-knowledge end-to-end encryption.</string>
+    
+    <!-- Settings categories -->
+    <string name="settings_helium_shield_category">Helium Shield &amp; Privacy</string>
+    <string name="settings_helium_extensions_category">Extension Engine</string>
+    <string name="settings_helium_sync_category">Private Vault Sync</string>
+</resources>

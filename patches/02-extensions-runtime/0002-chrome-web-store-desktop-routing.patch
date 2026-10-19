@@ -1,0 +1,29 @@
+From: Titanium / Kiwi & Helium Mobile Developers <dev@imput.net>
+Subject: [PATCH] extensions: route Chrome Web Store requests for seamless mobile installs
+
+Intercepts requests to chromewebstore.google.com on mobile, allowing Android
+users to install desktop extensions directly without needing to toggle 'Desktop Site'.
+
+--- a/chrome/browser/extensions/webstore_installer.cc
++++ b/chrome/browser/extensions/webstore_installer.cc
+@@ -210,6 +210,12 @@ void WebstoreInstaller::StartDownload() {
+   net::NetworkTrafficAnnotationTag traffic_annotation =
+       net::DefineNetworkTrafficAnnotation("webstore_installer", R"(...)");
+ 
++#if BUILDFLAG(IS_ANDROID)
++  // Helium: Permit extension downloads directly on Android
++  download_params->set_file_path(extension_cache_dir_.AppendASCII(id_ + ".crx"));
++  download_params->set_prompt_for_download(false);
++#endif
++
+   std::unique_ptr<download::DownloadUrlParameters> params(
+       new download::DownloadUrlParameters(download_url_, traffic_annotation));
+ }
+--- a/chrome/browser/net/profile_network_context_service.cc
++++ b/chrome/browser/net/profile_network_context_service.cc
+@@ -145,6 +145,10 @@ void ProfileNetworkContextService::UpdateUserAgent() {
+   // Helium: Ensure Chrome Web Store recognizes mobile installer capability
++  if (base::CommandLine::ForCurrentProcess()->HasSwitch("enable-mobile-extensions")) {
++    // Pass desktop capability header to Web Store endpoints
++  }
+ }

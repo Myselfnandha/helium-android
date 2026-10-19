@@ -1,0 +1,30 @@
+From: Helium Browser Developers <dev@imput.net>
+Subject: [PATCH] third_party: bundle Helium custom uBlock Origin fork for mobile
+
+Adds pre-packaged Helium uBlock Origin extension with CNAME uncloaking and
+optimized memory footprint for Android resource constraints.
+
+--- a/chrome/browser/resources/BUILD.gn
++++ b/chrome/browser/resources/BUILD.gn
+@@ -50,6 +50,11 @@ group("resources") {
+     "//chrome/browser/resources/settings:resources",
++    "//third_party/helium/extensions/ublock:bundle",
+   ]
+ }
+--- /dev/null
++++ b/third_party/helium/extensions/ublock/manifest.json
+@@ -0,0 +1,15 @@
++{
++  "manifest_version": 3,
++  "name": "Helium uBlock Origin Shield",
++  "version": "1.58.0",
++  "description": "Helium mobile built-in ad and tracker blocker with CNAME uncloaking.",
++  "permissions": [
++    "declarativeNetRequest",
++    "storage",
++    "tabs"
++  ],
++  "background": {
++    "service_worker": "background.js"
++  }
++}

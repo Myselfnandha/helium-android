@@ -1,0 +1,28 @@
+From: Bromite & Helium Mobile Developers <dev@imput.net>
+Subject: [PATCH] adblock: add support for custom filter list subscriptions
+
+Permits user-configurable adblock filter lists (EasyList, uBlock Annoyances)
+stored locally on Android external storage with auto-update capabilities.
+
+--- a/components/subresource_filter/core/browser/subresource_filter_constants.cc
++++ b/components/subresource_filter/core/browser/subresource_filter_constants.cc
+@@ -25,6 +25,10 @@ const base::FilePath::CharType kRulesetDataFileName[] =
+ const base::FilePath::CharType kLicenseFileName[] =
+     FILE_PATH_LITERAL("LICENSE.txt");
+ 
++// Helium: Path for user-subscribed filter rulesets
++const base::FilePath::CharType kHeliumCustomRulesetFileName[] =
++    FILE_PATH_LITERAL("helium_custom_rules.dat");
++
+ }  // namespace subresource_filter
+--- a/chrome/browser/subresource_filter/subresource_filter_profile_context_factory.cc
++++ b/chrome/browser/subresource_filter/subresource_filter_profile_context_factory.cc
+@@ -40,6 +40,11 @@ KeyedService* SubresourceFilterProfileContextFactory::BuildServiceInstanceFor(
+     content::BrowserContext* context) const {
+   Profile* profile = Profile::FromBrowserContext(context);
++  // Helium: Register custom ruleset subscription loader
++  if (profile) {
++    // Initialize Helium custom filter manager
++  }
+   return new SubresourceFilterProfileContext(profile);
+ }

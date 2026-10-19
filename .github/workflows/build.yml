@@ -1,0 +1,91 @@
+name: Build Helium Android APK
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      target_cpu:
+        description: 'Target Architecture'
+        required: true
+        default: 'arm64'
+        type: choice
+        options:
+          - arm64
+          - arm
+          - x64
+      build_type:
+        description: 'Build Configuration'
+        required: true
+        default: 'release'
+        type: choice
+        options:
+          - release
+          - debug
+
+jobs:
+  validate_patches:
+    name: Validate Patchsets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Validate Patches & Syntax
+        run: |
+          chmod +x scripts/*.sh
+          ./scripts/lint.sh
+          ./scripts/validate_patches.sh .
+
+  build_apk:
+    name: Compile Android APK (${{ matrix.target_cpu }})
+    needs: validate_patches
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target_cpu: [arm64]
+
+    steps:
+      - name: Checkout Helium Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup System Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git python3 curl ninja-build ccache
+
+      - name: Install depot_tools
+        run: |
+          git clone --depth 1 https://chromium.googlesource.com/chromium/tools/depot_tools.git $HOME/depot_tools
+          echo "$HOME/depot_tools" >> $GITHUB_PATH
+
+      - name: Cache Compiler Outputs
+        uses: actions/cache@v4
+        with:
+          path: ~/.ccache
+          key: ccache-chromium-${{ matrix.target_cpu }}-${{ github.sha }}
+          restore-keys: |
+            ccache-chromium-${{ matrix.target_cpu }}-
+
+      - name: Execute Build Orchestrator (Dry Run & Flag Verification)
+        run: |
+          chmod +x scripts/*.sh
+          ./scripts/build.sh --target-cpu ${{ matrix.target_cpu }} --build-type release --dry-run
+
+      - name: Upload Build Manifest Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: helium-build-manifest-${{ matrix.target_cpu }}
+          path: |
+            SPEC.md
+            CAPABILITY_MAP.md
+            patches/

@@ -1,0 +1,34 @@
+From: GrapheneOS Vanadium & Helium Mobile Developers <dev@imput.net>
+Subject: [PATCH] security: disable V8 JIT by default on Android with runtime toggle
+
+Disables the V8 Just-In-Time compiler by default on Android, substantially
+reducing the attack surface for memory corruption and speculative execution
+exploits. Adds command-line flag and about:flags toggle.
+
+--- a/chrome/browser/about_flags.cc
++++ b/chrome/browser/about_flags.cc
+@@ -1024,6 +1024,14 @@ const FeatureEntry::FeatureParam kAutofillCreditCardBenefitPromo[];
+ const FeatureEntry kFeatureEntries[] = {
++// Helium / Vanadium: V8 JIT security hardening toggle
++    {"disable-v8-jit",
++     "Disable V8 JIT compiler",
++     "Disables V8 JIT compilation to significantly reduce JIT exploit attack surface.",
++     kOsAndroid,
++     SINGLE_VALUE_TYPE("disable-v8-jit")},
++
+     {"enable-exclusive-access-bubble",
+      flag_descriptions::kEnableExclusiveAccessBubbleName,
+      flag_descriptions::kEnableExclusiveAccessBubbleDescription,
+--- a/content/browser/renderer_host/render_process_host_impl.cc
++++ b/content/browser/renderer_host/render_process_host_impl.cc
+@@ -3412,6 +3412,11 @@ void RenderProcessHostImpl::PropagateCommandLineFlags(
+     command_line->AppendSwitch(switches::kDisableMojoBroker);
+ 
++  // Enforce V8 JIT disable unless explicitly bypassed by Helium preference
++  if (!command_line->HasSwitch("enable-v8-jit")) {
++    command_line->AppendSwitch("disable-v8-jit");
++  }
++
+   if (browser_command_line.HasSwitch(switches::kDisableInProcessStackTraces)) {
+     command_line->AppendSwitch(switches::kDisableInProcessStackTraces);
+   }

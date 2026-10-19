@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- Category 1: Shield & Adblocking -->
+    <PreferenceCategory
+        android:title="@string/settings_helium_shield_category"
+        app:iconSpaceReserved="false">
+
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="helium_native_adblock_enabled"
+            android:summary="Blocks ads and privacy trackers using native C++ subresource filters"
+            android:title="@string/module_adblock_title" />
+
+        <Preference
+            android:dependency="helium_native_adblock_enabled"
+            android:key="helium_custom_filter_lists"
+            android:summary="Manage filter list subscriptions (EasyList, uBlock Annoyances)"
+            android:title="Filter Subscriptions" />
+    </PreferenceCategory>
+
+    <!-- Category 2: Extension Engine -->
+    <PreferenceCategory
+        android:title="@string/settings_helium_extensions_category"
+        app:iconSpaceReserved="false">
+
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="helium_extensions_enabled"
+            android:summary="Enables desktop Chrome Web Store extension runtime on Android"
+            android:title="@string/module_extensions_title" />
+
+        <Preference
+            android:dependency="helium_extensions_enabled"
+            android:key="helium_manage_extensions"
+            android:summary="View, configure, or sideload unpacked extensions"
+            android:title="Installed Extensions" />
+    </PreferenceCategory>
+
+    <!-- Category 3: Security & JIT -->
+    <PreferenceCategory
+        android:title="Vanadium Security Mitigations"
+        app:iconSpaceReserved="false">
+
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="helium_jit_protection_enabled"
+            android:summary="Disables V8 JIT compiler to eliminate memory corruption vectors"
+            android:title="@string/module_jit_title" />
+
+        <Preference
+            android:key="helium_jit_site_exceptions"
+            android:summary="Configure trusted domains permitted to execute with JIT enabled"
+            android:title="Per-Site JIT Exceptions" />
+    </PreferenceCategory>
+
+    <!-- Category 4: Private Vault Sync -->
+    <PreferenceCategory
+        android:title="@string/settings_helium_sync_category"
+        app:iconSpaceReserved="false">
+
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="helium_vault_sync_enabled"
+            android:summary="End-to-end encrypted synchronization with desktop Helium"
+            android:title="@string/module_sync_title" />
+
+        <Preference
+            android:dependency="helium_vault_sync_enabled"
+            android:key="helium_sync_pair_device"
+            android:summary="Scan QR code or enter secret passphrase from desktop Helium"
+            android:title="Pair Device" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

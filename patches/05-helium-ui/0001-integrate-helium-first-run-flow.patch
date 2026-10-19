@@ -1,0 +1,35 @@
+From: Helium Mobile Developers <dev@imput.net>
+Subject: [PATCH] ui: integrate Helium first run onboarding activity
+
+Overrides Chromium's standard first-run flow to present HeliumFirstRunActivity,
+enabling users to configure Extensions, Adblock, JIT, and Vault Sync before browsing.
+
+--- a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunFlowSequencer.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunFlowSequencer.java
+@@ -45,6 +45,12 @@ public class FirstRunFlowSequencer {
+     public static Intent createGenericFirstRunIntent(
+             Context context, boolean fromLauncherShortcut) {
++        // Helium: Launch custom Helium setup wizard on initial run
++        if (!net.imput.helium.preferences.HeliumPreferences.getInstance(context).isFirstRunCompleted()) {
++            return new Intent(context, net.imput.helium.onboarding.HeliumFirstRunActivity.class);
++        }
++
+         Intent intent = new Intent();
+         intent.setClassName(context, FirstRunActivity.class.getName());
+         return intent;
+     }
+--- a/chrome/android/java/AndroidManifest.xml
++++ b/chrome/android/java/AndroidManifest.xml
+@@ -110,6 +110,12 @@
+             android:theme="@style/Theme.Chromium.Activity"
+             android:windowSoftInputMode="adjustResize" />
+ 
++        <!-- Helium First-Run Wizard -->
++        <activity
++            android:name="net.imput.helium.onboarding.HeliumFirstRunActivity"
++            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
++            android:exported="false" />
++
+         <!-- Search activity -->
+         <activity
+             android:name="org.chromium.chrome.browser.searchwidget.SearchActivity"

@@ -1,0 +1,38 @@
+# Android Build Outputs & Keystores
+*.apk
+*.ap_
+*.aab
+*.dex
+*.class
+*.jks
+*.keystore
+local.properties
+signing.properties
+
+# Build Directories & Toolchains
+build/
+out/
+bin/
+gen/
+depot_tools/
+.gclient
+.gclient_entries
+src/
+chromium/
+
+# Gradle & IDE
+.gradle/
+.idea/
+*.iml
+*.ipr
+*.iws
+.DS_Store
+Thumbs.db
+
+# Cache & Scratch
+*.pyc
+__pycache__/
+*.swp
+*~
+*.log
+.agents/cache/

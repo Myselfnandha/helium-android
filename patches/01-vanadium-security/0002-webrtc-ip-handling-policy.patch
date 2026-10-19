@@ -1,0 +1,26 @@
+From: GrapheneOS Vanadium & Helium Mobile Developers <dev@imput.net>
+Subject: [PATCH] privacy: enforce strict WebRTC IP handling policy to prevent IP leaks
+
+Restricts WebRTC ICE candidate gathering to non-proxied UDP interfaces or
+disables local IP candidate broadcast, preventing device IP address leakage.
+
+--- a/chrome/browser/ui/browser_ui_prefs.cc
++++ b/chrome/browser/ui/browser_ui_prefs.cc
+@@ -88,6 +88,11 @@ void RegisterBrowserUserPrefs(user_prefs::PrefRegistrySyncable* registry) {
+   registry->RegisterBooleanPref(prefs::kAllowFileSelectionDialogs, true);
++
++  // Helium: Default WebRTC IP handling policy to disable UDP non-proxied discovery
++  registry->RegisterStringPref(
++      prefs::kWebRTCIPHandlingPolicy,
++      "disable_non_proxied_udp");
+ }
+ 
+ void RegisterBrowserPrefs(PrefRegistrySimple* registry) {
+--- a/content/browser/webrtc/webrtc_internals.cc
++++ b/content/browser/webrtc/webrtc_internals.cc
+@@ -45,6 +45,10 @@ void WebRTCInternals::UpdateWebRTCMethod() {
+   // Helium anti-fingerprinting: suppress hardware enumeration in WebRTC
++  if (base::CommandLine::ForCurrentProcess()->HasSwitch("helium-hardened-privacy")) {
++    return;
++  }
+ }

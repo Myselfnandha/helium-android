@@ -1,0 +1,25 @@
+From: Helium Mobile Developers <dev@imput.net>
+Subject: [PATCH] ui: apply Helium branded styling and custom Start Page to mobile New Tab Page
+
+Replaces default New Tab Page logo and search background with Helium's
+curated dark slate theme and cyan glow elements.
+
+--- a/chrome/android/java/src/org/chromium/chrome/browser/ntp/NewTabPageLayout.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/ntp/NewTabPageLayout.java
+@@ -88,6 +88,11 @@ public class NewTabPageLayout extends LinearLayout {
+     protected void onFinishInflate() {
+         super.onFinishInflate();
++
++        // Helium: Apply custom branding icon to NTP header
++        ImageView logo = findViewById(R.id.search_provider_logo);
++        if (logo != null) {
++            logo.setImageResource(net.imput.helium.R.drawable.ic_helium_logo);
++        }
+     }
+ }
+--- a/chrome/android/java/res/values/colors.xml
++++ b/chrome/android/java/res/values/colors.xml
+@@ -12,6 +12,10 @@
+     <color name="toolbar_background_primary">@color/helium_bg</color>
++    <color name="ntp_bg_color">@color/helium_bg</color>
+ }

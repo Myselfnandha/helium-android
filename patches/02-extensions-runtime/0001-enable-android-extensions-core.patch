@@ -1,0 +1,27 @@
+From: Titanium / Kiwi & Helium Mobile Developers <dev@imput.net>
+Subject: [PATCH] extensions: enable desktop extensions subsystem on Android targets
+
+Removes the !is_android restriction on Chromium extension subsystems, enabling
+ExtensionService, ExtensionActionManager, and ExtensionTabUtil on Android.
+
+--- a/extensions/buildflags/buildflags.gni
++++ b/extensions/buildflags/buildflags.gni
+@@ -8,7 +8,7 @@ import("//build/config/features.gni")
+ 
+ declare_args() {
+-  enable_extensions = !is_android && !is_ios && !is_fuchsia
++  enable_extensions = !is_ios && !is_fuchsia
+ }
+ 
+ declare_args() {
+--- a/chrome/browser/extensions/BUILD.gn
++++ b/chrome/browser/extensions/BUILD.gn
+@@ -20,6 +20,11 @@ source_set("extensions") {
+   sources = [
+     "extension_service.cc",
+     "extension_service.h",
++    "android/helium_extension_manager.cc",
++    "android/helium_extension_manager.h",
+   ]
+ 
+   deps = [
