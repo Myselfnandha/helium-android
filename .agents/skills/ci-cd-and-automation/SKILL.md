@@ -161,35 +161,6 @@ jobs:
           path: playwright-report/
 ```
 
-### Android Gradle CI/CD & Release Signing
-
-When configuring GitHub Actions for Android / Gradle applications:
-
-1. **Leverage Pre-Installed Runner SDK**:
-   On `ubuntu-latest` runners, avoid flaky external setup actions (`setup-android`). The runner image already contains the Android SDK. Point environment variables directly:
-   ```yaml
-   env:
-     ANDROID_HOME: /usr/local/lib/android/sdk
-     ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
-   ```
-2. **Modern AGP Requirements**:
-   Ensure `gradle.properties` exists with AndroidX enabled:
-   ```properties
-   android.useAndroidX=true
-   android.nonTransitiveRClass=true
-   org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
-   ```
-3. **Robust Release APK Signing**:
-   Decode keystore from base64 secrets and sign with `apksigner` fallback if Gradle signing configuration is not pre-wired:
-   ```bash
-   $ANDROID_HOME/build-tools/34.0.0/apksigner sign \
-     --ks /tmp/release.keystore \
-     --ks-key-alias "$KEY_ALIAS" \
-     --ks-pass "pass:$KEY_PASSWORD" \
-     --key-pass "pass:$KEY_PASSWORD" \
-     --out app-signed.apk app-unsigned.apk
-   ```
-
 ## Feeding CI Failures Back to Agents
 
 The power of CI with AI agents is the feedback loop. When CI fails:
@@ -218,6 +189,33 @@ Type error  → Agent reads the error location and fixes the type
 Test failure → Agent follows debugging-and-error-recovery skill
 Build error → Agent checks config and dependencies
 ```
+
+### Continuous Event-Driven Post-Push Verification
+
+After pushing a commit or release tag that triggers remote CI/CD workflows:
+
+1. **Obtain the Triggered Run**:
+   Query GitHub REST API (`GET /repos/{owner}/{repo}/actions/runs`) to retrieve the active `RUN_ID`.
+2. **Launch Event-Driven Monitor**:
+   Spawn a background command that tracks the workflow until it concludes, avoiding busy polling or sleep timers:
+   ```bash
+   bash -c '
+   while true; do
+     DATA=$(curl -s "https://api.github.com/repos/{owner}/{repo}/actions/runs/$RUN_ID")
+     STATUS=$(echo "$DATA" | grep -m 1 "\"status\":" | awk "{print \$2}" | tr -d "\",")
+     if [ "$STATUS" = "completed" ]; then
+       CONCLUSION=$(echo "$DATA" | grep -m 1 "\"conclusion\":" | awk "{print \$2}" | tr -d "\",")
+       echo "Workflow $RUN_ID completed with: $CONCLUSION"
+       [ "$CONCLUSION" = "success" ] && exit 0 || exit 1
+     fi
+     sleep 8
+   done
+   '
+   ```
+3. **Handle Completion Event**:
+   On receiving the task completion message:
+   - If `success`: verify published release assets or deployment targets.
+   - If `failure`: immediately fetch failure logs via `/actions/jobs/{job_id}/logs`, isolate the root cause, fix locally, run pre-flight tests, and re-push.
 
 ## Deployment Strategies
 
