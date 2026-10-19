@@ -161,6 +161,35 @@ jobs:
           path: playwright-report/
 ```
 
+### Android Gradle CI/CD & Release Signing
+
+When configuring GitHub Actions for Android / Gradle applications:
+
+1. **Leverage Pre-Installed Runner SDK**:
+   On `ubuntu-latest` runners, avoid flaky external setup actions (`setup-android`). The runner image already contains the Android SDK. Point environment variables directly:
+   ```yaml
+   env:
+     ANDROID_HOME: /usr/local/lib/android/sdk
+     ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+   ```
+2. **Modern AGP Requirements**:
+   Ensure `gradle.properties` exists with AndroidX enabled:
+   ```properties
+   android.useAndroidX=true
+   android.nonTransitiveRClass=true
+   org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
+   ```
+3. **Robust Release APK Signing**:
+   Decode keystore from base64 secrets and sign with `apksigner` fallback if Gradle signing configuration is not pre-wired:
+   ```bash
+   $ANDROID_HOME/build-tools/34.0.0/apksigner sign \
+     --ks /tmp/release.keystore \
+     --ks-key-alias "$KEY_ALIAS" \
+     --ks-pass "pass:$KEY_PASSWORD" \
+     --key-pass "pass:$KEY_PASSWORD" \
+     --out app-signed.apk app-unsigned.apk
+   ```
+
 ## Feeding CI Failures Back to Agents
 
 The power of CI with AI agents is the feedback loop. When CI fails:
