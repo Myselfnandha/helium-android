@@ -30,5 +30,15 @@ public class HeliumPreferencesTest {
                 net.imput.helium.preferences.HeliumPreferences.KEY_HTTPS_ONLY_MODE_ENABLED);
         assertEquals("helium_secure_dns_enabled", 
                 net.imput.helium.preferences.HeliumPreferences.KEY_SECURE_DNS_ENABLED);
+        assertEquals("helium_default_search_engine", 
+                net.imput.helium.preferences.HeliumPreferences.KEY_DEFAULT_SEARCH_ENGINE);
+        assertEquals("https://duckduckgo.com/?q=", 
+                net.imput.helium.preferences.HeliumPreferences.SEARCH_ENGINE_DUCKDUCKGO);
+        assertEquals("https://search.brave.com/search?q=", 
+                net.imput.helium.preferences.HeliumPreferences.SEARCH_ENGINE_BRAVE);
+        assertEquals("https://searx.be/search?q=", 
+                net.imput.helium.preferences.HeliumPreferences.SEARCH_ENGINE_SEARXNG);
+        assertEquals("https://www.startpage.com/sp/search?query=", 
+                net.imput.helium.preferences.HeliumPreferences.SEARCH_ENGINE_STARTPAGE);
     }
 }

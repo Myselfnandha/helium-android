@@ -37,7 +37,7 @@ with tempfile.TemporaryDirectory() as tmpdir:
 
     os.makedirs(os.path.join(tmpdir, 'android/content'))
     with open(os.path.join(tmpdir, 'android/content/SharedPreferences.java'), 'w') as f:
-        f.write('package android.content; public interface SharedPreferences { interface Editor { Editor putBoolean(String k, boolean v); void apply(); } boolean getBoolean(String k, boolean def); Editor edit(); }')
+        f.write('package android.content; public interface SharedPreferences { interface Editor { Editor putBoolean(String k, boolean v); Editor putString(String k, String v); void apply(); } boolean getBoolean(String k, boolean def); String getString(String k, String def); Editor edit(); }')
     with open(os.path.join(tmpdir, 'android/content/Context.java'), 'w') as f:
         f.write('package android.content; public abstract class Context { public static final int MODE_PRIVATE = 0; public abstract Context getApplicationContext(); public abstract SharedPreferences getSharedPreferences(String n, int m); }')
 

@@ -1,10 +1,10 @@
 package net.imput.helium.onboarding;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.RadioGroup;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import net.imput.helium.R;
@@ -12,7 +12,7 @@ import net.imput.helium.preferences.HeliumPreferences;
 
 /**
  * Helium Browser First-Run Setup Wizard.
- * Allows users to configure Extensions, Adblock, JIT protection, and Vault Sync on startup.
+ * Allows users to configure Extensions, Adblock, JIT protection, Vault Sync, and Search Engine on startup.
  */
 public class HeliumFirstRunActivity extends AppCompatActivity {
 
@@ -20,6 +20,7 @@ public class HeliumFirstRunActivity extends AppCompatActivity {
     private SwitchCompat mSwitchAdblock;
     private SwitchCompat mSwitchJit;
     private SwitchCompat mSwitchSync;
+    private RadioGroup mRgSearchEngines;
     private Button mBtnStartBrowsing;
     private HeliumPreferences mPreferences;
 
@@ -40,6 +41,7 @@ public class HeliumFirstRunActivity extends AppCompatActivity {
         mSwitchAdblock = findViewById(R.id.switch_adblock);
         mSwitchJit = findViewById(R.id.switch_jit);
         mSwitchSync = findViewById(R.id.switch_sync);
+        mRgSearchEngines = findViewById(R.id.rg_search_engines);
         mBtnStartBrowsing = findViewById(R.id.btn_start_browsing);
 
         if (savedInstanceState == null) {
@@ -48,6 +50,17 @@ public class HeliumFirstRunActivity extends AppCompatActivity {
             mSwitchAdblock.setChecked(mPreferences.isNativeAdblockEnabled());
             mSwitchJit.setChecked(mPreferences.isJitProtectionEnabled());
             mSwitchSync.setChecked(mPreferences.isVaultSyncEnabled());
+
+            String currentEngine = mPreferences.getDefaultSearchEngine();
+            if (HeliumPreferences.SEARCH_ENGINE_BRAVE.equals(currentEngine)) {
+                mRgSearchEngines.check(R.id.rb_brave);
+            } else if (HeliumPreferences.SEARCH_ENGINE_SEARXNG.equals(currentEngine)) {
+                mRgSearchEngines.check(R.id.rb_searxng);
+            } else if (HeliumPreferences.SEARCH_ENGINE_STARTPAGE.equals(currentEngine)) {
+                mRgSearchEngines.check(R.id.rb_startpage);
+            } else {
+                mRgSearchEngines.check(R.id.rb_duckduckgo);
+            }
         }
 
         mBtnStartBrowsing.setOnClickListener(new View.OnClickListener() {
@@ -63,8 +76,19 @@ public class HeliumFirstRunActivity extends AppCompatActivity {
         mPreferences.setNativeAdblockEnabled(mSwitchAdblock.isChecked());
         mPreferences.setJitProtectionEnabled(mSwitchJit.isChecked());
         mPreferences.setVaultSyncEnabled(mSwitchSync.isChecked());
-        mPreferences.setFirstRunCompleted(true);
 
+        int selectedId = mRgSearchEngines.getCheckedRadioButtonId();
+        if (selectedId == R.id.rb_brave) {
+            mPreferences.setDefaultSearchEngine(HeliumPreferences.SEARCH_ENGINE_BRAVE);
+        } else if (selectedId == R.id.rb_searxng) {
+            mPreferences.setDefaultSearchEngine(HeliumPreferences.SEARCH_ENGINE_SEARXNG);
+        } else if (selectedId == R.id.rb_startpage) {
+            mPreferences.setDefaultSearchEngine(HeliumPreferences.SEARCH_ENGINE_STARTPAGE);
+        } else {
+            mPreferences.setDefaultSearchEngine(HeliumPreferences.SEARCH_ENGINE_DUCKDUCKGO);
+        }
+
+        mPreferences.setFirstRunCompleted(true);
         launchBrowserAndFinish();
     }
 

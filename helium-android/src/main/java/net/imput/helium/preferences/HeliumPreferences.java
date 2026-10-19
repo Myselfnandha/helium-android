@@ -130,4 +130,18 @@ public final class HeliumPreferences {
     public void setSecureDnsEnabled(boolean enabled) {
         mPrefs.edit().putBoolean(KEY_SECURE_DNS_ENABLED, enabled).apply();
     }
+
+    public static final String KEY_DEFAULT_SEARCH_ENGINE = "helium_default_search_engine";
+    public static final String SEARCH_ENGINE_DUCKDUCKGO = "https://duckduckgo.com/?q=";
+    public static final String SEARCH_ENGINE_BRAVE = "https://search.brave.com/search?q=";
+    public static final String SEARCH_ENGINE_SEARXNG = "https://searx.be/search?q=";
+    public static final String SEARCH_ENGINE_STARTPAGE = "https://www.startpage.com/sp/search?query=";
+
+    public String getDefaultSearchEngine() {
+        return mPrefs.getString(KEY_DEFAULT_SEARCH_ENGINE, SEARCH_ENGINE_DUCKDUCKGO);
+    }
+
+    public void setDefaultSearchEngine(String engineUrl) {
+        mPrefs.edit().putString(KEY_DEFAULT_SEARCH_ENGINE, engineUrl).apply();
+    }
 }

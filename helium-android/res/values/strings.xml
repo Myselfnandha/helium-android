@@ -43,5 +43,11 @@
     <string name="extensions_btn_options">Options</string>
     <string name="extensions_btn_remove">Remove</string>
     <string name="extensions_version_format">Version %1$s</string>
-    <string name="extensions_enabled_label">Enabled</string>
+    <!-- Search Engine Selection -->
+    <string name="onboarding_search_engine_title">Default Search Engine</string>
+    <string name="onboarding_search_engine_desc">Choose your default privacy search provider.</string>
+    <string name="search_engine_duckduckgo">DuckDuckGo (Privacy Standard)</string>
+    <string name="search_engine_brave">Brave Search (Independent)</string>
+    <string name="search_engine_searxng">SearXNG (Decentralized Metasearch)</string>
+    <string name="search_engine_startpage">Startpage (Private Google Results)</string>
 </resources>
