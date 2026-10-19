@@ -8,6 +8,9 @@
 *.keystore
 local.properties
 signing.properties
+keystore/
+*.env
+
 
 # Build Directories & Toolchains
 build/
