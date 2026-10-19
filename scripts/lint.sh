@@ -36,7 +36,7 @@ while IFS= read -r xml_file; do
         echo -e "${RED}✗ ${xml_file} malformed XML${NC}"
         FAILED=$((FAILED + 1))
     fi
-done < <(find helium-android/res -type f -name "*.xml" 2>/dev/null || true)
+done < <(find helium-android -type f -name "*.xml" 2>/dev/null || true)
 
 if [ "$XML_COUNT" -eq 0 ]; then
     echo "No XML files found yet to check."
