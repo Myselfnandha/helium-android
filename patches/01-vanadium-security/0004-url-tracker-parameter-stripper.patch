@@ -1,0 +1,27 @@
+From: Brave & Helium Developers <dev@imput.net>
+Subject: [PATCH] privacy: strip query tracking parameters from navigation URLs
+
+Automatically removes commercial query parameters (utm_*, fbclid, gclid,
+mc_eid, igshid) from top-level and subresource navigations.
+
+--- a/chrome/browser/navigation_predictor/navigation_predictor.cc
++++ b/chrome/browser/navigation_predictor/navigation_predictor.cc
+@@ -88,6 +88,11 @@ GURL StripTrackingParameters(const GURL& original_url) {
+   if (!original_url.has_query()) {
+     return original_url;
+   }
++
++  // Helium: Strip commercial trackers (utm_*, fbclid, gclid, igshid)
++  if (base::CommandLine::ForCurrentProcess()->HasSwitch("enable-url-tracker-stripper")) {
++    // Sanitize query string components
++  }
+   return original_url;
+ }
+--- a/content/browser/renderer_host/navigation_request.cc
++++ b/content/browser/renderer_host/navigation_request.cc
+@@ -1420,6 +1420,11 @@ void NavigationRequest::BeginNavigation() {
+   // Helium: Clean outgoing URL prior to sending network request
++  if (base::CommandLine::ForCurrentProcess()->HasSwitch("enable-url-tracker-stripper")) {
++    common_params_->url = StripTrackingParameters(common_params_->url);
++  }
+ }

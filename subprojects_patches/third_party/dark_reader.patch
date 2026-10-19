@@ -1,0 +1,31 @@
+From: Helium Browser Developers <dev@imput.net>
+Subject: [PATCH] third_party: pre-bundle Dark Reader mobile AMOLED extension
+
+Adds Helium-optimized Dark Reader extension with streamlined CSS inversion
+and custom AMOLED black theme for energy efficiency on mobile OLED screens.
+
+--- a/chrome/browser/resources/BUILD.gn
++++ b/chrome/browser/resources/BUILD.gn
+@@ -52,6 +52,7 @@ group("resources") {
+     "//chrome/browser/resources/settings:resources",
+     "//third_party/helium/extensions/ublock:bundle",
++    "//third_party/helium/extensions/dark_reader:bundle",
+   ]
+ }
+--- /dev/null
++++ b/third_party/helium/extensions/dark_reader/manifest.json
+@@ -0,0 +1,15 @@
++{
++  "manifest_version": 3,
++  "name": "Helium Dark Reader",
++  "version": "4.9.80",
++  "description": "Helium mobile AMOLED dark theme engine for web content.",
++  "permissions": [
++    "storage",
++    "scripting",
++    "activeTab"
++  ],
++  "background": {
++    "service_worker": "background.js"
++  }
++}

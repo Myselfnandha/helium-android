@@ -5,11 +5,12 @@ Helium Browser for Android is an open-source, hardened mobile Chromium browser b
 
 | Module ID | Responsibility | Depends On |
 |---|---|---|
-| `core-vanadium` | Base Chromium Android patchset, Vanadium security hardening, JIT toggle flags, ungoogled privacy defaults | — |
-| `extensions-engine` | Kiwi/Titanium Android extension runtime, Chrome Web Store compatibility, unpacked extension sideloading, Helium uBlock Origin bundle | `core-vanadium` |
+| `core-vanadium` | Base Chromium Android patchset, Vanadium security hardening, JIT toggle flags, Canvas/Audio anti-fingerprinting, URL tracker stripper | — |
+| `extensions-engine` | Kiwi/Titanium Android extension runtime, Chrome Web Store compatibility, unpacked extension sideloading, Helium uBlock Origin and Dark Reader bundles | `core-vanadium` |
 | `adblock-filter` | Native C++ subresource filter engine (Bromite-based), custom filter list subscriptions, network-level tracker blocking | `core-vanadium` |
+| `media-enhancements` | Background video and audio playback, lockscreen controls, and picture-in-picture persistence | `core-vanadium` |
 | `vault-sync` | Helium Private Vault Sync (`helium/core/sync/vault`) protocol, E2EE key exchange, local SQLite/LevelDB state delta sync, Android background service | `core-vanadium` |
-| `helium-ui` | Helium visual identity, dark/light theme, modern Start Page, First-Run Setup Wizard, and unified Helium Settings page | `core-vanadium`, `extensions-engine`, `adblock-filter`, `vault-sync` |
+| `helium-ui` | Helium visual identity, dark/light theme, modern Start Page, First-Run Setup Wizard, and unified Helium Settings page | `core-vanadium`, `extensions-engine`, `adblock-filter`, `media-enhancements`, `vault-sync` |
 | `ci-cd` | GitHub Actions workflow matrix, Docker build container setup, keystore signing, release automation for APKs (arm64-v8a, armv7a, x86_64) | `core-vanadium`, `helium-ui` |
 
 ## Build & Integration Order
@@ -18,7 +19,9 @@ core-vanadium
       │
       ├───► extensions-engine ──┐
       │                         │
-      ├───► adblock-filter ─────┼───► helium-ui ───► ci-cd
+      ├───► adblock-filter ─────┼
+      │                         │
+      ├───► media-enhancements ─┼───► helium-ui ───► ci-cd
       │                         │
       └───► vault-sync ─────────┘
 ```

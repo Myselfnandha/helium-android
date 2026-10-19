@@ -13,6 +13,18 @@
             android:summary="Blocks ads and privacy trackers using native C++ subresource filters"
             android:title="@string/module_adblock_title" />
 
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="helium_url_tracker_stripper_enabled"
+            android:summary="Strips commercial tracking query parameters (utm_*, fbclid, gclid) from navigations"
+            android:title="URL Tracking Parameter Stripper" />
+
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="helium_anti_fingerprint_enabled"
+            android:summary="Randomizes Canvas 2D and AudioContext readouts to prevent cross-site device profiling"
+            android:title="Fingerprint Randomization" />
+
         <Preference
             android:dependency="helium_native_adblock_enabled"
             android:key="helium_custom_filter_lists"
@@ -20,7 +32,19 @@
             android:title="Filter Subscriptions" />
     </PreferenceCategory>
 
-    <!-- Category 2: Extension Engine -->
+    <!-- Category 2: Media & Playback -->
+    <PreferenceCategory
+        android:title="Media &amp; Background Playback"
+        app:iconSpaceReserved="false">
+
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="helium_background_media_enabled"
+            android:summary="Continue playing video and audio when switching tabs or turning off the screen"
+            android:title="Background Media Playback" />
+    </PreferenceCategory>
+
+    <!-- Category 3: Extension Engine -->
     <PreferenceCategory
         android:title="@string/settings_helium_extensions_category"
         app:iconSpaceReserved="false">
@@ -30,6 +54,13 @@
             android:key="helium_extensions_enabled"
             android:summary="Enables desktop Chrome Web Store extension runtime on Android"
             android:title="@string/module_extensions_title" />
+
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:dependency="helium_extensions_enabled"
+            android:key="helium_dark_reader_enabled"
+            android:summary="AMOLED black theme engine for web content using bundled Dark Reader"
+            android:title="Dark Reader AMOLED Mode" />
 
         <Preference
             android:dependency="helium_extensions_enabled"

@@ -55,6 +55,7 @@ if [ -d "$CHROMIUM_DIR" ]; then
         "patches/03-adblock-engine"
         "patches/04-vault-sync"
         "patches/05-helium-ui"
+        "patches/06-media-enhancements"
     )
 
     for pdir in "${PATCH_DIRS[@]}"; do

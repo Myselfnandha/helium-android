@@ -15,6 +15,7 @@ Before modifying or creating files:
 1. Read `.agents/memory/decisions.md` to honor past architectural commitments and invariants.
 2. Read `.agents/memory/gotchas.md` to avoid known platform bugs, tricky edge cases, and circular dependencies.
 3. Check the active goal state in `.agents/memory/goals.md`.
+4. **Pre-Execution Tool Optimization**: Select optimal tools per goal/context (`grep_search`, whole-file `view_file`, `multi_replace_file_content`, tuned `run_command`) to maximize speed and minimize token burn.
 
 ### 2. Architecture & Seam Design
 - Design interface boundaries before writing implementation logic.
@@ -33,11 +34,13 @@ Before modifying or creating files:
   - **Assert**: Verify outputs, state mutations, and mock invocations.
 - Run project test suites and linters to verify behavior and type safety.
 
-### 5. Memory Tree Synchronization
-- At the conclusion of non-trivial tasks, record learnings into `.agents/memory/`:
+### 5. Memory Tree Synchronization & Auto-Learn / Quick Grill-Me
+- **Auto-run `/learn`**: Record durable learnings and invariants into `.agents/memory/`:
   - New invariants $\rightarrow$ `decisions.md`
-  - Fixed quirks/workarounds $\rightarrow$ `gotchas.md`
+  - Fixed quirks/workarounds $\rightarrow$ `gotchas.md` (and `anti_patterns.json`)
   - Completed milestones $\rightarrow$ `goals.md`
+  - Captured strategies $\rightarrow$ run `python3 .agents/scripts/auto_evolve.py capture`
+- **Quick Grill-Me**: Conclude the execution with a quick `/grill-me` via `ask_question` (1-2 targeted Socratic questions) to verify alignment, confirm architectural choices, and lock in user conventions.
 
 ---
 
