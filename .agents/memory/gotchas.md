@@ -21,6 +21,7 @@ Before taking any architectural, coding, or tooling action, the agent must sweep
 | **AP-010** | **Polling in loops or setting redundant timers while waiting for background tasks or command completion** | Failing to utilize the system's reactive wakeup event loop, resulting in busy-wait loops and unnecessary timers | Always use "Waiting for a task notification" with live status. Avoid unnecessary timers; do not poll; await direct completion signal |
 | **AP-011** | **Reading a single file in multiple sliced chunks or piecemeal line ranges when analyzing it** | Unnecessary line range slicing on single-file analysis resulting in fragmented context and multiple redundant tool calls | When a single file needs to be analyzed, read the entire file in one call (single view_file without slicing) |
 | **AP-012** | **Suboptimal or haphazard tool selection resulting in latency, token waste, or context bloat** | Executing operations reflexively using shell commands or piecemeal calls without pre-flight tool evaluation | Evaluate and select the most direct, token-efficient tool (grep_search, full view_file, multi_replace, reactive async) before execution |
+| **AP-013** | **Unanchored gitignore directory patterns masking nested subproject source trees** | Using unanchored paths like `src/` in `.gitignore` matches any directory named `src` anywhere in the tree (e.g. `helium-android/src/`), silently ignoring application code. | Always anchor root-specific checkout directories with a leading slash (e.g., `/src/`) in `.gitignore`. |
 
 
 

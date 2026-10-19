@@ -29,5 +29,9 @@ This document records durable architectural decisions, system invariants, and in
 - **Decision**: Prior to triggering any action, assess the action against available tools to choose the most token-efficient, fast, and direct execution path.
 - **Rationale**: Using the best-fit tool (dedicated search/edit/read/async primitives over shell commands or fragmented multi-step calls) preserves context window, eliminates round-trip latency, and prevents hallucination.
 
+### 7. Anchored Root-Level Path Exclusions in .gitignore
+- **Decision**: Repository root checkouts (like Chromium source trees) must be anchored with a leading slash (e.g. `/src/`) in `.gitignore`.
+- **Rationale**: Unanchored patterns match recursively at any directory depth, inadvertently ignoring subproject application source code (e.g. `helium-android/src/`).
+
 
 
