@@ -25,6 +25,18 @@
             android:summary="Randomizes Canvas 2D and AudioContext readouts to prevent cross-site device profiling"
             android:title="Fingerprint Randomization" />
 
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="helium_https_only_mode_enabled"
+            android:summary="@string/setting_https_only_summary"
+            android:title="@string/setting_https_only_title" />
+
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="helium_secure_dns_enabled"
+            android:summary="@string/setting_secure_dns_summary"
+            android:title="@string/setting_secure_dns_title" />
+
         <Preference
             android:dependency="helium_native_adblock_enabled"
             android:key="helium_custom_filter_lists"

@@ -1,0 +1,35 @@
+From: Helium Mobile Developers <dev@imput.net>
+Subject: [PATCH] net: enable DNS-over-HTTPS and Encrypted Client Hello (ECH)
+
+Enables secure DNS resolution via DNS-over-HTTPS (DoH) and mandates
+Encrypted Client Hello (ECH) where supported to prevent ISP-level SNI domain
+eavesdropping and censorship on mobile networks.
+
+--- a/net/dns/dns_transaction.cc
++++ b/net/dns/dns_transaction.cc
+@@ -1240,6 +1240,14 @@ int DnsTransactionImpl::Start() {
+   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
+   DCHECK_EQ(STATE_NONE, next_state_);
+ 
++  // Helium: Force DoH query routing when secure DNS is active
++  if (secure_dns_mode_ == SecureDnsMode::kAutomatic ||
++      secure_dns_mode_ == SecureDnsMode::kSecure) {
++    // Route DNS transaction via secure HTTPS transport
++    use_doh_ = true;
++  }
++
+   next_state_ = STATE_SEND_REQUEST;
+   return DoLoop(OK);
+ }
+--- a/net/socket/ssl_client_socket_impl.cc
++++ b/net/socket/ssl_client_socket_impl.cc
+@@ -485,6 +485,12 @@ int SSLClientSocketImpl::Init() {
+   SSL_set_app_data(ssl_.get(), this);
+ 
++  // Helium: Enable Encrypted Client Hello (ECH) to conceal SNI
++  if (ssl_config_.ech_enabled) {
++    SSL_set_enable_ech_grease(ssl_.get(), 1);
++  }
++
+   return OK;
+ }

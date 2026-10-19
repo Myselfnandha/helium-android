@@ -33,11 +33,12 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Validate Patches & Syntax
+      - name: Validate Patches, Syntax & Unit Tests
         run: |
           chmod +x scripts/*.sh
           ./scripts/lint.sh
           ./scripts/validate_patches.sh .
+          ./scripts/run_unit_tests.sh
 
   build_apk:
     name: Compile Android APK (${{ matrix.target_cpu }})

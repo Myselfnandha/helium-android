@@ -33,3 +33,9 @@
 -keep class net.imput.helium.sync.VaultSyncService {
     *;
 }
+
+# Keep Extensions Subsystem and Models
+-keep class net.imput.helium.extensions.** {
+    *;
+}
+

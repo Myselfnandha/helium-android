@@ -20,7 +20,7 @@ gen/
 depot_tools/
 .gclient
 .gclient_entries
-src/
+/src/
 chromium/
 
 # Gradle & IDE

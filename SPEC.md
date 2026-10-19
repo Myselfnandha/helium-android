@@ -54,19 +54,16 @@ All architectural decisions and patterns in this specification are grounded in t
 ## 4. Commands
 ```bash
 # Initialize repository and verify patch cleanliness
-./scripts/validate_patches.sh
+./scripts/validate_patches.sh .
 
-# Run local syntax check and linting on Android Java/Kotlin and scripts
+# Run local syntax check and linting on Android Java/Kotlin, scripts, and workflows
 ./scripts/lint.sh
 
-# Test patch application against target Chromium revision
-./scripts/test_patch_apply.sh --target 124.0.6367.82
+# Run Java unit tests (HeliumPreferencesTest, VaultClientTest, ExtensionManagerTest)
+./scripts/run_unit_tests.sh
 
-# Local build script (for high-spec dev server or dry-run)
-./scripts/build.sh --target-cpu arm64 --build-type release
-
-# Trigger GitHub Actions CI build manually via gh CLI
-gh workflow run "Build Helium Android Release" -f target_cpu=arm64 -f sign_apk=true
+# Local build script (dry run or local compile)
+./scripts/build.sh --target-cpu arm64 --build-type release --dry-run
 ```
 
 ---
@@ -77,31 +74,40 @@ Helium/
 ├── .github/
 │   └── workflows/
 │       ├── build.yml                 # Matrix workflow building arm64, armv7a, x86_64 APKs
-│       ├── lint_and_verify.yml       # PR validation: patch integrity, bash lint, Java lint
 │       └── release.yml               # Automated GitHub release creation with signed APKs
 ├── CAPABILITY_MAP.md                 # Architecture capability map and module registry
 ├── SPEC.md                           # This complete specification document
 ├── patches/                          # Main Chromium source tree patches
-│   ├── 01-vanadium-security/         # JIT toggle, WebRTC flags, anti-fingerprinting
-│   ├── 02-extensions-runtime/        # Android extension runtime, desktop Web Store support
+│   ├── 01-vanadium-security/         # JIT toggle, WebRTC flags, anti-fingerprinting, HTTPS-Only, DoH/ECH
+│   ├── 02-extensions-runtime/        # Android extension runtime, desktop Web Store, CRX sideloading
 │   ├── 03-adblock-engine/            # Bromite C++ native adblock filter integration
 │   ├── 04-vault-sync/                # helium/core/sync/vault JNI and synchronization layer
-│   └── 05-helium-ui/                 # Helium theme, branding, Start Page, Settings, First-Run
+│   ├── 05-helium-ui/                 # Helium theme, branding, Start Page routing, First-Run
+│   └── 06-media-enhancements/        # Background audio/video playback
 ├── subprojects_patches/              # Subproject-specific patches (v8, third_party, etc.)
-│   ├── v8/                           # V8 JIT and memory security toggles
-│   └── third_party/                  # Custom uBlock Origin fork bundle & assets
+│   └── third_party/                  # Custom uBlock Origin fork bundle & Dark Reader AMOLED
 ├── helium-android/                   # Custom Helium Android Java/Kotlin source additions
+│   ├── assets/startpage/             # Self-contained offline modern Start Page (HTML/CSS/JS)
 │   ├── src/main/java/net/imput/helium/
+│   │   ├── extensions/               # ExtensionItem, ExtensionManager, HeliumExtensionsActivity
 │   │   ├── onboarding/               # First-Run Setup Wizard (toggles for JIT, Ext, Adblock)
-│   │   ├── settings/                 # Helium Settings screen & Preference fragments
-│   │   ├── sync/                     # Vault Sync Android background service & bridge
-│   │   └── ui/                       # Helium branded custom Start Page & theme controllers
-│   └── res/                          # Vector drawables, colors (Helium slate/cyan), layouts
+│   │   ├── preferences/              # HeliumPreferences central persistent manager
+│   │   ├── settings/                 # HeliumSettingsFragment screen & Preference bindings
+│   │   └── sync/                     # VaultClient JNI and VaultSyncService background service
+│   ├── src/test/java/net/imput/helium/
+│   │   ├── ExtensionManagerTest.java # Unit tests for extension data models & invariants
+│   │   ├── HeliumPreferencesTest.java# Unit tests for preference key contracts
+│   │   └── VaultClientTest.java      # Unit tests for Vault client null safety
+│   ├── res/                          # Vector drawables, colors, layouts, preferences XML
+│   ├── AndroidManifest.xml           # Android package definition, activities, services
+│   └── proguard-rules.pro            # R8/ProGuard preservation rules
 ├── scripts/
 │   ├── build.sh                      # Unified build script (runs locally or inside Docker CI)
+│   ├── lint.sh                       # Multi-linter (bash syntax, XML validation, YAML validation)
+│   ├── run_unit_tests.sh             # Java unit test orchestrator
+│   ├── setup_signing_secrets.py      # Keystore generation & GitHub Actions secret encryption
 │   ├── setup_toolchain.sh            # depot_tools, Android SDK/NDK installer
-│   ├── validate_patches.sh           # Patch series integrity checker
-│   └── update_patches.sh             # Rebase/refresh patches against newer Chromium targets
+│   └── validate_patches.sh           # Patch series integrity checker
 └── README.md                         # Project documentation, build instructions, CI setup
 ```
 

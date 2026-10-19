@@ -22,6 +22,13 @@
             android:configChanges="orientation|screenSize|screenLayout"
             android:windowSoftInputMode="adjustResize" />
 
+        <!-- Extension Manager Activity -->
+        <activity
+            android:name="net.imput.helium.extensions.HeliumExtensionsActivity"
+            android:exported="false"
+            android:label="@string/extensions_title"
+            android:configChanges="orientation|screenSize|screenLayout" />
+
         <!-- Background Vault Synchronization Service -->
         <service
             android:name="net.imput.helium.sync.VaultSyncService"

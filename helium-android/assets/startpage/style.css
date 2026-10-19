@@ -1,0 +1,273 @@
+/* Helium Mobile Modern Start Page Stylesheet */
+:root {
+  --bg-color: #0b0f19;
+  --surface-color: #111827;
+  --surface-hover: #1e293b;
+  --border-color: #334155;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --accent-cyan: #06b6d4;
+  --accent-cyan-glow: rgba(6, 182, 212, 0.2);
+  --accent-emerald: #10b981;
+  --accent-emerald-glow: rgba(16, 185, 129, 0.2);
+  --radius-lg: 16px;
+  --radius-md: 12px;
+  --radius-sm: 8px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  overflow-x: hidden;
+}
+
+.startpage-container {
+  width: 100%;
+  max-width: 640px;
+  padding: 24px 20px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.helium-icon {
+  width: 32px;
+  height: 32px;
+}
+
+.brand-name {
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: var(--text-primary);
+}
+
+.badge-sync {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: 9999px;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--accent-emerald);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  background-color: var(--accent-emerald);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--accent-emerald);
+}
+
+/* Shield Banner */
+.shield-banner {
+  background: linear-gradient(135deg, rgba(17, 24, 39, 0.95), rgba(30, 41, 59, 0.95));
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.stat-number {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--accent-cyan);
+  text-shadow: 0 0 12px var(--accent-cyan-glow);
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.shield-tag {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-end;
+}
+
+.shield-badge {
+  background-color: rgba(6, 182, 212, 0.12);
+  border: 1px solid rgba(6, 182, 212, 0.3);
+  color: var(--accent-cyan);
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.05em;
+}
+
+/* Search Bar */
+.search-section {
+  width: 100%;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  background-color: var(--surface-color);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 4px 8px 4px 12px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  min-height: 52px;
+}
+
+.search-bar:focus-within {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 0 3px var(--accent-cyan-glow);
+}
+
+.engine-select {
+  background-color: transparent;
+  border: none;
+  color: var(--accent-cyan);
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 8px 4px;
+  cursor: pointer;
+  outline: none;
+}
+
+.engine-select option {
+  background-color: var(--surface-color);
+  color: var(--text-primary);
+}
+
+#search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-size: 1rem;
+  padding: 8px 12px;
+}
+
+#search-input::placeholder {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.search-button {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  transition: color 0.2s, background-color 0.2s;
+}
+
+.search-button:hover,
+.search-button:focus {
+  color: var(--accent-cyan);
+  background-color: var(--surface-hover);
+}
+
+/* Speed Dial / Bookmarks */
+.quick-dials {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.section-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.bookmarks-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.dial-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: var(--text-primary);
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 16px 8px;
+  min-height: 84px;
+  justify-content: center;
+  transition: background-color 0.2s, transform 0.15s, border-color 0.2s;
+}
+
+.dial-item:hover,
+.dial-item:focus {
+  background-color: var(--surface-hover);
+  border-color: var(--accent-cyan);
+  transform: translateY(-2px);
+}
+
+.dial-icon {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--accent-cyan);
+}
+
+.dial-name {
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-align: center;
+  max-width: 70px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Footer */
+.footer {
+  margin-top: auto;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  padding-top: 16px;
+}

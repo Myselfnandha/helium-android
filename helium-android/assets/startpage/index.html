@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Helium</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="startpage-container">
+    <!-- Header / Status Bar -->
+    <header class="header">
+      <div class="logo-group">
+        <svg class="helium-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="10" stroke="#06B6D4" stroke-width="2"/>
+          <path d="M12 6V18M6 12H18" stroke="#10B981" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span class="brand-name">HELIUM</span>
+      </div>
+      <div id="vault-pill" class="badge badge-sync" title="Private Vault Sync Status">
+        <span class="dot"></span>
+        <span id="vault-text">Vault Sync Ready</span>
+      </div>
+    </header>
+
+    <!-- Hero / Shield Stats -->
+    <section class="shield-banner">
+      <div class="shield-stat">
+        <div class="stat-number" id="blocked-count">128</div>
+        <div class="stat-label">Trackers & Ads Blocked</div>
+      </div>
+      <div class="shield-tag">
+        <span class="shield-badge">HARDENED</span>
+        <span class="shield-badge">NO JIT</span>
+        <span class="shield-badge">HTTPS</span>
+      </div>
+    </section>
+
+    <!-- Search Section -->
+    <section class="search-section">
+      <form id="search-form" class="search-bar" action="https://duckduckgo.com/" method="GET">
+        <select id="engine-select" class="engine-select" aria-label="Search Engine">
+          <option value="https://duckduckgo.com/?q=" selected>DuckDuckGo</option>
+          <option value="https://search.brave.com/search?q=">Brave</option>
+          <option value="https://searx.be/search?q=">SearXNG</option>
+        </select>
+        <input 
+          type="text" 
+          id="search-input" 
+          name="q" 
+          placeholder="Search the web privately or enter URL..." 
+          autocomplete="off" 
+          autofocus 
+          required>
+        <button type="submit" class="search-button" aria-label="Search">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </button>
+      </form>
+    </section>
+
+    <!-- Quick Dials -->
+    <section class="quick-dials">
+      <h2 class="section-title">Speed Dial</h2>
+      <div id="bookmarks-grid" class="bookmarks-grid">
+        <!-- Rendered dynamically via startpage.js -->
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <span>Helium Mobile &bull; Vanadium Hardened Chromium Base</span>
+    </footer>
+  </div>
+
+  <script src="startpage.js"></script>
+</body>
+</html>

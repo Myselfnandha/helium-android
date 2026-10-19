@@ -1,0 +1,39 @@
+From: Kiwi / Titanium & Helium Mobile Developers <dev@imput.net>
+Subject: [PATCH] extensions: support CRX file sideloading and developer mode on Android
+
+Registers Android MIME type handling for Chrome extension packages (.crx)
+and provides file picker hooks to load unpacked extension bundles directly from
+local Android device storage into the mobile ExtensionService.
+
+--- a/chrome/browser/download/android/download_controller.cc
++++ b/chrome/browser/download/android/download_controller.cc
+@@ -118,6 +118,17 @@ void DownloadController::OnDownloadCompleted(
+     download::DownloadItem* item) {
+   DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
+ 
++  // Helium: Intercept .crx downloads and route directly to mobile extension installer
++  base::FilePath target_path = item->GetTargetFilePath();
++  if (target_path.MatchesExtension(FILE_PATH_LITERAL(".crx"))) {
++    content::WebContents* web_contents =
++        content::DownloadItemUtils::GetWebContents(item);
++    if (web_contents) {
++      HeliumInstallCrxFromPath(web_contents, target_path);
++      return;
++    }
++  }
++
+   AcquireFileAccessPermission(
+       base::BindRepeating(&DownloadController::OnStoragePermissionGranted,
+--- a/chrome/browser/extensions/crx_installer.cc
++++ b/chrome/browser/extensions/crx_installer.cc
+@@ -215,6 +215,12 @@ void CrxInstaller::InstallCrxFile(const base::FilePath& source_file) {
+   DCHECK(installer_task_runner_->RunsTasksInCurrentSequence());
+ 
++  // Helium: Allow mobile local package installation in developer mode
++  if (install_source_ == mojom::ManifestLocation::kInternal ||
++      install_source_ == mojom::ManifestLocation::kUnpacked) {
++    set_allow_silent_install(true);
++  }
++
+   source_file_ = source_file;
+   InitializeCreationFlags();

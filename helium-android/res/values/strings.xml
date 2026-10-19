@@ -28,4 +28,20 @@
     <string name="settings_helium_shield_category">Helium Shield &amp; Privacy</string>
     <string name="settings_helium_extensions_category">Extension Engine</string>
     <string name="settings_helium_sync_category">Private Vault Sync</string>
+
+    <!-- Network Security Settings -->
+    <string name="setting_https_only_title">Strict HTTPS-Only Mode</string>
+    <string name="setting_https_only_summary">Upgrades all navigations to HTTPS and warns before loading insecure HTTP sites</string>
+    <string name="setting_secure_dns_title">Encrypted DNS &amp; ECH</string>
+    <string name="setting_secure_dns_summary">Enforces DNS-over-HTTPS (DoH) and Encrypted Client Hello to conceal requested domains</string>
+
+    <!-- Extension Management UI -->
+    <string name="extensions_title">Extensions</string>
+    <string name="extensions_empty_text">No extensions installed yet</string>
+    <string name="extensions_empty_subtext">Install extensions from the Chrome Web Store or sideload a .crx file</string>
+    <string name="extensions_btn_sideload">Load from .crx</string>
+    <string name="extensions_btn_options">Options</string>
+    <string name="extensions_btn_remove">Remove</string>
+    <string name="extensions_version_format">Version %1$s</string>
+    <string name="extensions_enabled_label">Enabled</string>
 </resources>

@@ -1,0 +1,33 @@
+From: GrapheneOS Vanadium & Helium Mobile Developers <dev@imput.net>
+Subject: [PATCH] security: enable strict HTTPS-only mode by default on mobile
+
+Enforces HTTPS for all top-level navigations by default on Android, preventing
+cleartext HTTP traffic and interception. Implements automatic upgrade with
+security interstitial fallback when an HTTPS endpoint is unavailable.
+
+--- a/chrome/browser/ssl/https_only_mode_controller.cc
++++ b/chrome/browser/ssl/https_only_mode_controller.cc
+@@ -45,6 +45,15 @@ bool HttpsOnlyModeController::IsHttpsFirstModeEnabled() const {
++  // Helium / Vanadium: Enforce HTTPS-Only Mode by default on mobile
++  const PrefService* prefs = profile_->GetPrefs();
++  if (prefs && prefs->HasPrefPath("helium.https_only_mode_enabled")) {
++    return prefs->GetBoolean("helium.https_only_mode_enabled");
++  }
++  return true;
++}
++
+ bool HttpsOnlyModeController::ShouldUpgradeNavigation(
+     content::NavigationHandle* handle) const {
+   if (!IsHttpsFirstModeEnabled()) {
+--- a/components/security_interstitials/content/https_only_mode_blocking_page.cc
++++ b/components/security_interstitials/content/https_only_mode_blocking_page.cc
+@@ -82,6 +82,9 @@ void HttpsOnlyModeBlockingPage::PopulateInterstitialStrings(
+   load_time_data->SetString(
+       "primaryParagraph",
+       l10n_util::GetStringUTF16(IDS_HTTPS_ONLY_MODE_PRIMARY_PARAGRAPH));
++  load_time_data->SetString(
++      "heliumBrandHeader",
++      l10n_util::GetStringUTF16(IDS_HELIUM_SECURITY_INTERSTITIAL_TITLE));
+   load_time_data->SetString(
+       "explanationParagraph",
+       l10n_util::GetStringUTF16(IDS_HTTPS_ONLY_MODE_EXPLANATION));
