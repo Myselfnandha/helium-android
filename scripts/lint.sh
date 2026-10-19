@@ -59,6 +59,22 @@ if [ "$YAML_COUNT" -eq 0 ]; then
     echo "No YAML workflows found yet to check."
 fi
 
+# 4. Android Resource Reference Integrity check
+echo -e "\n${BLUE}[4/4] Checking Android resource references...${NC}"
+AVAILABLE_COLORS=$(grep -oE '<color name="[^"]+"' helium-android/res/values/colors.xml | sed 's/<color name="//;s/"//' | sort -u || true)
+while IFS= read -r f; do
+    # Find all @color/ references
+    for ref in $(grep -oE '@color/[a-zA-Z0-9_]+' "$f" | sed 's/@color\///' | sort -u); do
+        if ! echo "$AVAILABLE_COLORS" | grep -qx "$ref"; then
+            echo -e "${RED}✗ ${f}: missing @color/${ref}${NC}"
+            FAILED=$((FAILED + 1))
+        fi
+    done
+done < <(find helium-android/res/layout helium-android/res/drawable -type f -name "*.xml" 2>/dev/null || true)
+if [ "$FAILED" -eq 0 ]; then
+    echo -e "${GREEN}✓ All resource color references are defined${NC}"
+fi
+
 echo "--------------------------------------------------------"
 if [ "$FAILED" -gt 0 ]; then
     echo -e "${RED}Linting finished with ${FAILED} errors.${NC}"

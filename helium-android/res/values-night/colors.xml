@@ -24,4 +24,5 @@
     <color name="helium_surface">#0f172a</color>
     <color name="helium_border">#1e293b</color>
     <color name="helium_accent_cyan">#06b6d4</color>
+    <color name="helium_accent_emerald">#10b981</color>
 </resources>
