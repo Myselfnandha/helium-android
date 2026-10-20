@@ -30,6 +30,9 @@ public class BookmarksHistoryDialogFragment extends BottomSheetDialogFragment {
         void onUrlSelected(@NonNull String url);
     }
 
+    public static final boolean TAB_BOOKMARKS = true;
+    public static final boolean TAB_HISTORY = false;
+
     private HeliumDbHelper mDbHelper;
     private OnUrlSelectedListener mListener;
     private boolean mShowBookmarks = true;

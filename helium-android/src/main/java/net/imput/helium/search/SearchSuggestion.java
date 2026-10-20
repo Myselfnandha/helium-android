@@ -49,4 +49,9 @@ public final class SearchSuggestion {
     public String getExtra() {
         return mExtra;
     }
+
+    @NonNull
+    public String getSubtitle() {
+        return mExtra;
+    }
 }
