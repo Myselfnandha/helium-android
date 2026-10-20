@@ -3,32 +3,36 @@
 ## System Overview
 Helium Browser for Android is an open-source, hardened mobile Chromium browser bringing Helium's visual identity, Private Vault Sync, desktop extension support (uBlock Origin), and native adblocking to Android devices.
 
-| Module ID | Responsibility | Depends On |
-|---|---|---|
-| `core-vanadium` | Base Chromium Android patchset, Vanadium security hardening, JIT toggle flags, Canvas/Audio anti-fingerprinting, URL tracker stripper, strict HTTPS-only mode, and Encrypted DNS (DoH/ECH) | — |
-| `extensions-engine` | Kiwi/Titanium Android extension runtime, Chrome Web Store compatibility, unpacked CRX sideloading, native Helium Extension Manager UI, Helium uBlock Origin and Dark Reader bundles | `core-vanadium` |
-| `adblock-filter` | Native C++ subresource filter engine (Bromite-based), custom filter list subscriptions, network-level tracker blocking | `core-vanadium` |
-| `media-enhancements` | Background video and audio playback, lockscreen controls, and picture-in-picture persistence | `core-vanadium` |
-| `vault-sync` | Helium Private Vault Sync (`helium/core/sync/vault`) protocol, E2EE key exchange, local SQLite/LevelDB state delta sync, Android background service | `core-vanadium` |
-| `helium-ui` | Helium visual identity, dark/light theme, modern offline Start Page assets, First-Run Setup Wizard, and unified Helium Settings page | `core-vanadium`, `extensions-engine`, `adblock-filter`, `media-enhancements`, `vault-sync` |
-| `ci-cd` | GitHub Actions workflow matrix, Docker build container setup, keystore signing, release automation for APKs (arm64-v8a, armv7a, x86_64) | `core-vanadium`, `helium-ui` |
+| Module ID | Responsibility | Interface Seam | Depends On |
+|---|---|---|---|
+| `core-vanadium` | Base Chromium Android patchset, Vanadium security hardening, JIT toggle flags, and Encrypted DNS (DoH/ECH) | JNI / Command line switch | — |
+| `adblock-filter` | Native C++ subresource filter & Java `AdBlockEngine` blocking 500+ ad/tracker hosts in-memory | `WebViewClient.shouldInterceptRequest()` | `core-vanadium` |
+| `privacy-shields` | `HeliumNoiseController` (Canvas/Audio/WebGL), `UrlTrackerStripper`, and `HttpsUpgrader` | `ExtensionRuntimeInjector` & Omnibox routing | `core-vanadium` |
+| `search-bangs` | `BangsRouter` with 50+ privacy and developer search shortcut tags (`!w`, `!gh`, `!yt`, `!ddg`) | Omnibox submission path | — |
+| `tab-session` | `TabManager` and `Tab` models managing multi-tab lifecycle, active selection, incognito isolation, and memory pausing | `TabManager.addListener()` & `TabsDialogFragment` | — |
+| `storage-db` | `HeliumDbHelper` SQLite backing store for History and Bookmarks with background thread pool | `HeliumDbHelper.Callback<T>` | — |
+| `extensions-engine` | Kiwi/Titanium Android extension runtime, Chrome Web Store compatibility, CRX sideloading, and `ExtensionRuntimeInjector` | WebExtension background worker & DOM injection | `core-vanadium` |
+| `media-enhancements` | `MediaPlaybackHost` with `PARTIAL_WAKE_LOCK` and `visibilityState` spoofing for background video/audio | Activity lifecycle (`onPause`/`onResume`) | `core-vanadium` |
+| `vault-sync` | Helium Private Vault Sync (`helium/core/sync/vault`) E2EE protocol, `VaultCrypto` (AES-256-GCM + PBKDF2), and `VaultBundle` | `VaultClient` & Android Sync Adapter | `core-vanadium`, `storage-db` |
+| `helium-ui` | Helium visual identity, dark/light theme, modern offline Start Page assets, First-Run Setup Wizard, Tabs bottom sheet, and Settings | Android Views & `ChromeBaseAppCompatActivity` | All modules |
+| `ci-cd` | GitHub Actions workflow matrix, permanent keystore signing, automated checksums, and cloud threat scanner verification | GitHub Actions workflows | All modules |
 
 ## Build & Integration Order
 ```
 core-vanadium
       │
-      ├───► extensions-engine ──┐
-      │                         │
-      ├───► adblock-filter ─────┼
-      │                         │
-      ├───► media-enhancements ─┼───► helium-ui ───► ci-cd
-      │                         │
-      └───► vault-sync ─────────┘
+      ├───► adblock-filter ─────┐
+      ├───► privacy-shields ────┤
+      ├───► search-bangs ───────┼───► tab-session ───► helium-ui ───► ci-cd
+      ├───► extensions-engine ──┤          ▲
+      ├───► media-enhancements ─┤          │
+      └───► storage-db ─────────┴───► vault-sync
 ```
 
 1. **`core-vanadium`**: Base upstream patches, security toggles, Vanadium/ungoogled core.
-2. **`extensions-engine`**: Mobile extension framework integration.
-3. **`adblock-filter`**: Engine-level adblocking filter integration.
-4. **`vault-sync`**: E2EE private sync client and Android sync provider.
-5. **`helium-ui`**: UI layers, first-run wizard, and settings controls binding all module toggles.
-6. **`ci-cd`**: GitHub Actions workflows to compile, test, sign, and release the APKs.
+2. **`adblock-filter` & `privacy-shields`**: Zero-latency in-memory request filtering, noise injection, and URL stripping.
+3. **`search-bangs` & `storage-db`**: Instant query resolution and background SQLite storage.
+4. **`tab-session`**: Multi-tab lifecycle controller and background memory throttling.
+5. **`vault-sync`**: E2EE private sync client and state delta serializer.
+6. **`helium-ui`**: Touch-optimized interface, tabs switcher, and settings controls binding all module toggles.
+7. **`ci-cd`**: GitHub Actions workflows to compile, test, sign, and release the APKs.
