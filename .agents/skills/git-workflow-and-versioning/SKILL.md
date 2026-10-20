@@ -144,30 +144,6 @@ chore/<short-description>     → chore/update-deps
 refactor/<short-description>  → refactor/auth-module
 ```
 
-## Remote Repository Provisioning & Synchronization
-
-### Automated Remote Repository Provisioning
-
-When pushing a newly initialized repository to a remote URL that returns `remote: Repository not found`:
-
-1. **Check Stored Credentials**:
-   Inspect `~/.git-credentials` or environment tokens (`GITHUB_TOKEN`, `GH_TOKEN`) without exposing or logging secrets.
-2. **Verify Scopes via API**:
-   Query `GET https://api.github.com/user` with `Authorization: Bearer <token>` to verify username and check `X-OAuth-Scopes` for `repo` permissions.
-3. **Auto-Create Remote Repository**:
-   If authorized and requested by the user:
-   ```bash
-   curl -s -X POST -H "Authorization: Bearer $GITHUB_TOKEN" \
-     -H "Accept: application/vnd.github.v3+json" \
-     https://api.github.com/user/repos \
-     -d '{"name": "<repo-name>", "description": "<description>", "private": false}'
-   ```
-4. **Set Up Remote and Push**:
-   ```bash
-   git remote add origin https://github.com/<username>/<repo-name>.git
-   git push -u origin main
-   ```
-
 ## Working with Worktrees
 
 For parallel AI agent work, use git worktrees to run multiple branches simultaneously:

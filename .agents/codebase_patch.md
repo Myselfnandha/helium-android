@@ -1,5 +1,54 @@
 # Codebase Patches: Helium
 
+## 2026-10-19 22:48:41 (32 files changed)
+- `.github/workflows/build.yml` — GitHub Actions workflow
+- `.gitignore` — Android Build Outputs & Keystores .apk (37 lines)
+- `CAPABILITY_MAP.md` — Capability Map: Helium Browser for Android (30 lines)
+- `SPEC.md` — Spec: Helium Browser for Android (192 lines)
+- `helium-android/AndroidManifest.xml` — XML file: 33 lines
+- `helium-android/assets/startpage/index.html` — HTML file: 75 lines
+- `helium-android/assets/startpage/startpage.js` — Test suite: 1 test blocks, test
+- `helium-android/assets/startpage/style.css` — Helium Mobile Modern Start Page Stylesheet (242 lines)
+- `helium-android/proguard-rules.pro` — Helium Android ProGuard & R8 Optimization Rules (32 lines)
+- `helium-android/res/drawable/ic_add.xml` — XML file: 9 lines
+- `helium-android/res/drawable/ic_extension_options.xml` — XML file: 9 lines
+- `helium-android/res/layout/activity_helium_extensions.xml` — XML file: 71 lines
+- `helium-android/res/layout/item_extension_card.xml` — XML file: 88 lines
+- `helium-android/res/values/strings.xml` — XML file: 39 lines
+- `helium-android/res/xml/helium_preferences.xml` — XML file: 99 lines
+- `helium-android/src/main/cpp/helium_vault_jni.cc` — include "helium_vault_jni.h" include <sstream> (85 lines)
+- `helium-android/src/main/cpp/helium_vault_jni.h` — namespace helium, sync; classes: VaultNativeCore
+- `helium-android/src/main/java/net/imput/helium/extensions/ExtensionItem.java` — classes: ExtensionItem; 10 methods
+- `helium-android/src/main/java/net/imput/helium/extensions/ExtensionManager.java` — classes: ExtensionManager; 10 methods
+- `helium-android/src/main/java/net/imput/helium/extensions/HeliumExtensionsActivity.java` — classes: HeliumExtensionsActivity; 16 methods
+- `helium-android/src/main/java/net/imput/helium/onboarding/HeliumFirstRunActivity.java` — classes: HeliumFirstRunActivity; 4 methods
+- `helium-android/src/main/java/net/imput/helium/preferences/HeliumPreferences.java` — classes: HeliumPreferences; 23 methods
+- `helium-android/src/main/java/net/imput/helium/settings/HeliumSettingsFragment.java` — classes: HeliumSettingsFragment; 15 methods
+- `helium-android/src/main/java/net/imput/helium/sync/VaultClient.java` — classes: VaultClient; 8 methods
+- `helium-android/src/main/java/net/imput/helium/sync/VaultSyncService.java` — classes: VaultSyncService; 3 methods
+- `helium-android/src/test/java/net/imput/helium/ExtensionManagerTest.java` — classes: ExtensionManagerTest; 4 methods
+- `helium-android/src/test/java/net/imput/helium/HeliumPreferencesTest.java` — classes: HeliumPreferencesTest; 1 methods
+- `helium-android/src/test/java/net/imput/helium/VaultClientTest.java` — classes: VaultClientTest; 2 methods
+- `patches/01-vanadium-security/0005-strict-https-only-mode.patch` — - a/chrome/browser/ssl/https_only_mode_controller.cc (31 lines)
+- `patches/01-vanadium-security/0006-secure-dns-and-ech.patch` — - a/net/dns/dns_transaction.cc (31 lines)
+- `patches/02-extensions-runtime/0003-crx-sideloading-and-developer-mode.patch` — - a/chrome/browser/download/android/download_controller.cc (35 lines)
+- `scripts/run_unit_tests.sh` — Shell script (env)
+
+## 2026-10-19 22:35:53 (13 files changed)
+- `.gitignore` — Android Build Outputs & Keystores .apk (37 lines)
+- `CAPABILITY_MAP.md` — Capability Map: Helium Browser for Android (30 lines)
+- `helium-android/AndroidManifest.xml` — XML file: 27 lines
+- `helium-android/proguard-rules.pro` — Helium Android ProGuard & R8 Optimization Rules (28 lines)
+- `helium-android/res/xml/helium_preferences.xml` — XML file: 89 lines
+- `patches/01-vanadium-security/0003-canvas-audio-anti-fingerprinting.patch` — - a/third_party/blink/renderer/core/html/canvas/canvas_rendering_context_2d.cc (29 lines)
+- `patches/01-vanadium-security/0004-url-tracker-parameter-stripper.patch` — - a/chrome/browser/navigation_predictor/navigation_predictor.cc (25 lines)
+- `patches/06-media-enhancements/0001-enable-background-video-playback.patch` — - a/content/browser/media/media_web_contents_observer.cc (28 lines)
+- `scripts/build.sh` — Shell script (env); functions: usage
+- `scripts/lint.sh` — Shell script (env)
+- `scripts/setup_signing_secrets.py` — HTTP client; functions: get_github_token, generate_random_password, encrypt_secret, upload_secret +1 more
+- `scripts/wait_for_workflow.py` — HTTP client; functions: get_token, main
+- `subprojects_patches/third_party/dark_reader.patch` — - a/chrome/browser/resources/BUILD.gn (29 lines)
+
 ## 2026-10-19 21:28:01 (34 files changed)
 - `.github/workflows/build.yml` — GitHub Actions workflow
 - `.github/workflows/release.yml` — GitHub Actions workflow

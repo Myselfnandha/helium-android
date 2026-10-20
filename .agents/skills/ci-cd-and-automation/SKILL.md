@@ -190,33 +190,6 @@ Test failure → Agent follows debugging-and-error-recovery skill
 Build error → Agent checks config and dependencies
 ```
 
-### Continuous Event-Driven Post-Push Verification
-
-After pushing a commit or release tag that triggers remote CI/CD workflows:
-
-1. **Obtain the Triggered Run**:
-   Query GitHub REST API (`GET /repos/{owner}/{repo}/actions/runs`) to retrieve the active `RUN_ID`.
-2. **Launch Event-Driven Monitor**:
-   Spawn a background command that tracks the workflow until it concludes, avoiding busy polling or sleep timers:
-   ```bash
-   bash -c '
-   while true; do
-     DATA=$(curl -s "https://api.github.com/repos/{owner}/{repo}/actions/runs/$RUN_ID")
-     STATUS=$(echo "$DATA" | grep -m 1 "\"status\":" | awk "{print \$2}" | tr -d "\",")
-     if [ "$STATUS" = "completed" ]; then
-       CONCLUSION=$(echo "$DATA" | grep -m 1 "\"conclusion\":" | awk "{print \$2}" | tr -d "\",")
-       echo "Workflow $RUN_ID completed with: $CONCLUSION"
-       [ "$CONCLUSION" = "success" ] && exit 0 || exit 1
-     fi
-     sleep 8
-   done
-   '
-   ```
-3. **Handle Completion Event**:
-   On receiving the task completion message:
-   - If `success`: verify published release assets or deployment targets.
-   - If `failure`: immediately fetch failure logs via `/actions/jobs/{job_id}/logs`, isolate the root cause, fix locally, run pre-flight tests, and re-push.
-
 ## Deployment Strategies
 
 ### Preview Deployments

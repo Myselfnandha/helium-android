@@ -39,10 +39,13 @@ public final class VaultClient {
         }
     }
 
+    private String mVaultKey;
+
     public synchronized boolean initialize(String vaultKey, String storagePath) {
         if (vaultKey == null || vaultKey.trim().isEmpty() || storagePath == null) {
             return false;
         }
+        mVaultKey = vaultKey;
         try {
             mInitialized = nativeInitialize(vaultKey, storagePath);
         } catch (UnsatisfiedLinkError e) {
@@ -62,7 +65,14 @@ public final class VaultClient {
         try {
             return nativeEncryptPayload(payload);
         } catch (UnsatisfiedLinkError e) {
-            return "fallback_enc:" + payload;
+            if (mVaultKey != null) {
+                try {
+                    return VaultCrypto.encrypt(payload, mVaultKey);
+                } catch (Exception ex) {
+                    Log.e(TAG, "VaultCrypto encryption failed: " + ex.getMessage());
+                }
+            }
+            return payload;
         }
     }
 
@@ -73,7 +83,14 @@ public final class VaultClient {
         try {
             return nativeDecryptPayload(envelope);
         } catch (UnsatisfiedLinkError e) {
-            return envelope.replace("fallback_enc:", "");
+            if (mVaultKey != null) {
+                try {
+                    return VaultCrypto.decrypt(envelope, mVaultKey);
+                } catch (Exception ex) {
+                    Log.e(TAG, "VaultCrypto decryption failed: " + ex.getMessage());
+                }
+            }
+            return envelope;
         }
     }
 

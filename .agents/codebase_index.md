@@ -1,12 +1,184 @@
 # Codebase Context: Helium
-> Auto-generated on 2026-10-19 21:12:15. 0 files, ~0 tokens.
+> Auto-generated on 2026-10-19 22:48:41. 66 files, ~44,943 tokens.
 
 ## Structure
 ```text
 Helium/
-
+├── .github/
+│   └── workflows/
+│       ├── build.yml
+│       └── release.yml
+├── .gitignore
+├── CAPABILITY_MAP.md
+├── README.md
+├── SPEC.md
+├── docs/
+│   └── ARCHITECTURE.md
+├── helium-android/
+│   ├── AndroidManifest.xml
+│   ├── assets/
+│   │   └── startpage/
+│   │       ├── index.html
+│   │       ├── startpage.js
+│   │       └── style.css
+│   ├── proguard-rules.pro
+│   ├── res/
+│   │   ├── drawable/
+│   │   │   ├── bg_card_rounded.xml
+│   │   │   ├── ic_add.xml
+│   │   │   ├── ic_extension_options.xml
+│   │   │   ├── ic_extension_puzzle.xml
+│   │   │   ├── ic_helium_logo.xml
+│   │   │   ├── ic_shield_check.xml
+│   │   │   └── ic_sync_vault.xml
+│   │   ├── layout/
+│   │   │   ├── activity_helium_extensions.xml
+│   │   │   ├── activity_helium_first_run.xml
+│   │   │   └── item_extension_card.xml
+│   │   ├── values/
+│   │   │   ├── colors.xml
+│   │   │   └── strings.xml
+│   │   ├── values-night/
+│   │   │   └── colors.xml
+│   │   └── xml/
+│   │       └── helium_preferences.xml
+│   └── src/
+│       ├── main/
+│       │   ├── cpp/
+│       │   │   ├── helium_vault_jni.cc
+│       │   │   └── helium_vault_jni.h
+│       │   └── java/
+│       │       └── net/
+│       │           └── imput/
+│       │               └── helium/
+│       │                   ├── extensions/
+│       │                   │   ├── ExtensionItem.java
+│       │                   │   ├── ExtensionManager.java
+│       │                   │   └── HeliumExtensionsActivity.java
+│       │                   ├── onboarding/
+│       │                   │   └── HeliumFirstRunActivity.java
+│       │                   ├── preferences/
+│       │                   │   └── HeliumPreferences.java
+│       │                   ├── settings/
+│       │                   │   └── HeliumSettingsFragment.java
+│       │                   └── sync/
+│       │                       ├── VaultClient.java
+│       │                       └── VaultSyncService.java
+│       └── test/
+│           └── java/
+│               └── net/
+│                   └── imput/
+│                       └── helium/
+│                           ├── ExtensionManagerTest.java
+│                           ├── HeliumPreferencesTest.java
+│                           └── VaultClientTest.java
+├── patches/
+│   ├── 01-vanadium-security/
+│   │   ├── 0001-disable-v8-jit-by-default.patch
+│   │   ├── 0002-webrtc-ip-handling-policy.patch
+│   │   ├── 0003-canvas-audio-anti-fingerprinting.patch
+│   │   ├── 0004-url-tracker-parameter-stripper.patch
+│   │   ├── 0005-strict-https-only-mode.patch
+│   │   ├── 0006-secure-dns-and-ech.patch
+│   │   └── README.md
+│   ├── 02-extensions-runtime/
+│   │   ├── 0001-enable-android-extensions-core.patch
+│   │   ├── 0002-chrome-web-store-desktop-routing.patch
+│   │   └── 0003-crx-sideloading-and-developer-mode.patch
+│   ├── 03-adblock-engine/
+│   │   ├── 0001-bromite-subresource-filter-core.patch
+│   │   └── 0002-custom-filters-subscription.patch
+│   ├── 04-vault-sync/
+│   │   └── 0001-hook-helium-vault-sync-engine.patch
+│   ├── 05-helium-ui/
+│   │   ├── 0001-integrate-helium-first-run-flow.patch
+│   │   └── 0002-helium-mobile-start-page.patch
+│   └── 06-media-enhancements/
+│       └── 0001-enable-background-video-playback.patch
+├── scripts/
+│   ├── build.sh
+│   ├── lint.sh
+│   ├── run_unit_tests.sh
+│   ├── setup_signing_secrets.py
+│   ├── setup_toolchain.sh
+│   ├── validate_patches.sh
+│   └── wait_for_workflow.py
+├── subprojects_patches/
+│   ├── third_party/
+│   │   ├── dark_reader.patch
+│   │   └── ublock_origin.patch
+│   └── v8/
+└── tasks/
+    ├── plan.md
+    └── todo.md
 ```
 
 ## File Index
 
+- `.github/workflows/build.yml` — GitHub Actions workflow
+- `.github/workflows/release.yml` — GitHub Actions workflow
+- `.gitignore` — Android Build Outputs & Keystores .apk (37 lines)
+- `CAPABILITY_MAP.md` — Capability Map: Helium Browser for Android (30 lines)
+- `README.md` — Helium Browser for Android (77 lines)
+- `SPEC.md` — Spec: Helium Browser for Android (192 lines)
+- `docs/ARCHITECTURE.md` — Helium Browser for Android: Architecture Guide (50 lines)
+- `helium-android/AndroidManifest.xml` — XML file: 33 lines
+- `helium-android/assets/startpage/index.html` — HTML file: 75 lines
+- `helium-android/assets/startpage/startpage.js` — Test suite: 1 test blocks, test
+- `helium-android/assets/startpage/style.css` — Helium Mobile Modern Start Page Stylesheet (242 lines)
+- `helium-android/proguard-rules.pro` — Helium Android ProGuard & R8 Optimization Rules (32 lines)
+- `helium-android/res/drawable/bg_card_rounded.xml` — XML file: 9 lines
+- `helium-android/res/drawable/ic_add.xml` — XML file: 9 lines
+- `helium-android/res/drawable/ic_extension_options.xml` — XML file: 9 lines
+- `helium-android/res/drawable/ic_extension_puzzle.xml` — XML file: 9 lines
+- `helium-android/res/drawable/ic_helium_logo.xml` — XML file: 16 lines
+- `helium-android/res/drawable/ic_shield_check.xml` — XML file: 9 lines
+- `helium-android/res/drawable/ic_sync_vault.xml` — XML file: 9 lines
+- `helium-android/res/layout/activity_helium_extensions.xml` — XML file: 71 lines
+- `helium-android/res/layout/activity_helium_first_run.xml` — XML file: 213 lines
+- `helium-android/res/layout/item_extension_card.xml` — XML file: 88 lines
+- `helium-android/res/values-night/colors.xml` — XML file: 18 lines
+- `helium-android/res/values/colors.xml` — XML file: 18 lines
+- `helium-android/res/values/strings.xml` — XML file: 39 lines
+- `helium-android/res/xml/helium_preferences.xml` — XML file: 99 lines
+- `helium-android/src/main/cpp/helium_vault_jni.cc` — include "helium_vault_jni.h" include <sstream> (85 lines)
+- `helium-android/src/main/cpp/helium_vault_jni.h` — namespace helium, sync; classes: VaultNativeCore
+- `helium-android/src/main/java/net/imput/helium/extensions/ExtensionItem.java` — classes: ExtensionItem; 10 methods
+- `helium-android/src/main/java/net/imput/helium/extensions/ExtensionManager.java` — classes: ExtensionManager; 10 methods
+- `helium-android/src/main/java/net/imput/helium/extensions/HeliumExtensionsActivity.java` — classes: HeliumExtensionsActivity; 16 methods
+- `helium-android/src/main/java/net/imput/helium/onboarding/HeliumFirstRunActivity.java` — classes: HeliumFirstRunActivity; 4 methods
+- `helium-android/src/main/java/net/imput/helium/preferences/HeliumPreferences.java` — classes: HeliumPreferences; 23 methods
+- `helium-android/src/main/java/net/imput/helium/settings/HeliumSettingsFragment.java` — classes: HeliumSettingsFragment; 15 methods
+- `helium-android/src/main/java/net/imput/helium/sync/VaultClient.java` — classes: VaultClient; 8 methods
+- `helium-android/src/main/java/net/imput/helium/sync/VaultSyncService.java` — classes: VaultSyncService; 3 methods
+- `helium-android/src/test/java/net/imput/helium/ExtensionManagerTest.java` — classes: ExtensionManagerTest; 4 methods
+- `helium-android/src/test/java/net/imput/helium/HeliumPreferencesTest.java` — classes: HeliumPreferencesTest; 1 methods
+- `helium-android/src/test/java/net/imput/helium/VaultClientTest.java` — classes: VaultClientTest; 2 methods
+- `patches/01-vanadium-security/0001-disable-v8-jit-by-default.patch` — - a/chrome/browser/about_flags.cc (31 lines)
+- `patches/01-vanadium-security/0002-webrtc-ip-handling-policy.patch` — - a/chrome/browser/ui/browser_ui_prefs.cc (23 lines)
+- `patches/01-vanadium-security/0003-canvas-audio-anti-fingerprinting.patch` — - a/third_party/blink/renderer/core/html/canvas/canvas_rendering_context_2d.cc (29 lines)
+- `patches/01-vanadium-security/0004-url-tracker-parameter-stripper.patch` — - a/chrome/browser/navigation_predictor/navigation_predictor.cc (25 lines)
+- `patches/01-vanadium-security/0005-strict-https-only-mode.patch` — - a/chrome/browser/ssl/https_only_mode_controller.cc (31 lines)
+- `patches/01-vanadium-security/0006-secure-dns-and-ech.patch` — - a/net/dns/dns_transaction.cc (31 lines)
+- `patches/01-vanadium-security/README.md` — 01-vanadium-security (5 lines)
+- `patches/02-extensions-runtime/0001-enable-android-extensions-core.patch` — - a/extensions/buildflags/buildflags.gni (22 lines)
+- `patches/02-extensions-runtime/0002-chrome-web-store-desktop-routing.patch` — - a/chrome/browser/extensions/webstore_installer.cc (26 lines)
+- `patches/02-extensions-runtime/0003-crx-sideloading-and-developer-mode.patch` — - a/chrome/browser/download/android/download_controller.cc (35 lines)
+- `patches/03-adblock-engine/0001-bromite-subresource-filter-core.patch` — - a/components/subresource_filter/content/browser/content_subresource_filter_throttle_m... (23 lines)
+- `patches/03-adblock-engine/0002-custom-filters-subscription.patch` — - a/components/subresource_filter/core/browser/subresource_filter_constants.cc (25 lines)
+- `patches/04-vault-sync/0001-hook-helium-vault-sync-engine.patch` — - a/components/sync/service/sync_service_impl.cc (26 lines)
+- `patches/05-helium-ui/0001-integrate-helium-first-run-flow.patch` — - a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunFlowSequencer.... (32 lines)
+- `patches/05-helium-ui/0002-helium-mobile-start-page.patch` — - a/chrome/android/java/src/org/chromium/chrome/browser/ntp/NewTabPageLayout.java (23 lines)
+- `patches/06-media-enhancements/0001-enable-background-video-playback.patch` — - a/content/browser/media/media_web_contents_observer.cc (28 lines)
+- `scripts/build.sh` — Shell script (env); functions: usage
+- `scripts/lint.sh` — Shell script (env)
+- `scripts/run_unit_tests.sh` — Shell script (env)
+- `scripts/setup_signing_secrets.py` — HTTP client; functions: get_github_token, generate_random_password, encrypt_secret, upload_secret +1 more
+- `scripts/setup_toolchain.sh` — Shell script (env)
+- `scripts/validate_patches.sh` — Shell script (env)
+- `scripts/wait_for_workflow.py` — HTTP client; functions: get_token, main
+- `subprojects_patches/third_party/dark_reader.patch` — - a/chrome/browser/resources/BUILD.gn (29 lines)
+- `subprojects_patches/third_party/ublock_origin.patch` — - a/chrome/browser/resources/BUILD.gn (28 lines)
+- `tasks/plan.md` — Implementation Plan: Helium Browser for Android (71 lines)
+- `tasks/todo.md` — Helium Browser for Android: Task List (218 lines)
 

@@ -40,11 +40,13 @@ public class ExtensionRuntimeInjector {
     private final Context mContext;
     private final ExtensionManager mExtensionManager;
     private final HeliumPreferences mPreferences;
+    private final net.imput.helium.privacy.noise.HeliumNoiseController mNoiseController;
 
     public ExtensionRuntimeInjector(Context context) {
         mContext = context.getApplicationContext();
         mExtensionManager = ExtensionManager.getInstance(mContext);
         mPreferences = HeliumPreferences.getInstance(mContext);
+        mNoiseController = new net.imput.helium.privacy.noise.HeliumNoiseController(mContext);
     }
 
     /**
@@ -58,12 +60,20 @@ public class ExtensionRuntimeInjector {
             return;
         }
 
-        // 1. Native Adblock / Tracker Stripping CSS injection
+        // 1. Anti-fingerprinting Noise (Canvas, WebGL, Audio jitter)
+        if (mNoiseController.isEnabled()) {
+            String noiseScript = mNoiseController.getInjectionScript();
+            if (!noiseScript.isEmpty()) {
+                executeSafeScript(webView, noiseScript);
+            }
+        }
+
+        // 2. Native Adblock / Tracker Stripping CSS injection
         if (mPreferences.isNativeAdblockEnabled()) {
             injectStyleRule(webView, NATIVE_ADBLOCK_CSS, "helium-adblock-shield");
         }
 
-        // 2. Iterate and inject installed WebExtensions
+        // 3. Iterate and inject installed WebExtensions
         if (mPreferences.isExtensionsEnabled()) {
             List<ExtensionItem> extensions = mExtensionManager.getInstalledExtensions();
             for (ExtensionItem ext : extensions) {

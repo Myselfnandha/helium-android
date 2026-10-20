@@ -44,5 +44,3 @@ trigger: model_decision
 §12 CONTEXT-DRIVEN SKILL AUTO-ACTIVATION: Automatically activate and inspect the represented skill whenever a task or context matches its specialized capability (Chrome DevTools, accessibility, Hugging Face CLI, ponytail tech debt, git workflow, performance profiling, UI layout, security auditing):
 - Pre-Execution Skill Inspection: Inspect matching `SKILL.md` in a single `view_file` call (0 slicing) before executing domain tasks to adopt official runbooks.
 - Strict Adherence: Follow documented skill guidelines, conventions, and error-recovery patterns instead of improvising ad-hoc actions.
-
-§13 CONTINUOUS EVENT-DRIVEN CI VERIFICATION: Whenever a git commit or tag is pushed that triggers remote CI/CD workflows (e.g. GitHub Actions), proactively track the remote workflow to its final conclusion (`success` or `failure`). Tracking MUST be executed using event-based background tasks (awaiting reactive completion via background task notification) with zero sleep timers or polling loops. If remote CI fails, immediately fetch remote logs, isolate the root cause, fix, and re-verify until green.

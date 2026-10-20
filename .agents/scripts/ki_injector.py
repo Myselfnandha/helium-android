@@ -23,8 +23,6 @@ KI_BASE_DIR = os.path.expanduser('~/.gemini/antigravity-ide/knowledge')
 # Global rules directory
 GLOBAL_RULES_DIR = os.path.expanduser('~/.gemini/config/rules')
 
-# Workspace rules directory (relative to workspace root)
-WORKSPACE_RULES_REL = '.agent/rules'
 
 
 def get_ki_dir_name(project_name):
@@ -146,25 +144,15 @@ def ensure_workspace_rule(workspace_root):
     os.makedirs(rules_dir, exist_ok=True)
 
     rule_content = f"""---
-trigger: always_on
+trigger: model_decision
 ---
 
 # Codebase Context Auto-Loader
 
-When starting a new conversation in this workspace:
-
-1. A Knowledge Item (KI) named `codebase-context-*` contains the compact codebase index and recent patches
-2. This context is automatically injected at conversation start via the KI system
-3. Use this context to understand the codebase before asking the user or reading files
-4. For deeper analysis, read the full `codebase_summary.md` in `{agent_dir_name}/codebase_summary.md`
-
-## Auto-Regeneration
-
-The codebase context is automatically kept fresh:
-- On conversation start, staleness is checked and auto-healed via:
-  `python .agents/scripts/analyze.py <folder> --check --auto-heal --inject-ki 2>/dev/null || python .agent/scripts/analyze.py <folder> --check --auto-heal --inject-ki`
-- If stale, it auto-regenerates and updates the KI with `--inject-ki` flag
-- Patch log tracks recent changes for incremental context
+For this workspace:
+1. Injected `codebase-context-*` KI provides the index and recent patches at conversation start.
+2. Inspect code and directory structures directly via `view_file` and `grep_search`. Read `{agent_dir_name}/codebase_summary.md` for directory overviews.
+3. NEVER spawn background Python analyzer scripts. Access persistent KI and summary natively with zero overhead.
 """
 
     with open(rule_path, 'w', encoding='utf-8') as f:
@@ -178,26 +166,25 @@ def ensure_global_rule():
     """
     Create or verify the global rule for auto-context in all .agent/ or .agents/ workspaces.
     """
-    rule_path = os.path.join(GLOBAL_RULES_DIR, 'auto_codebase_context.md')
     os.makedirs(GLOBAL_RULES_DIR, exist_ok=True)
+    legacy_path = os.path.join(GLOBAL_RULES_DIR, 'auto_codebase_context.md')
+    if os.path.exists(legacy_path):
+        try:
+            os.remove(legacy_path)
+        except OSError:
+            pass
 
+    rule_path = os.path.join(GLOBAL_RULES_DIR, 'codebase_context.md')
     rule_content = """---
 trigger: always_on
 ---
 
-# Auto Codebase Context (Global)
+# Codebase Context Auto-Loader
 
 For any workspace containing a `.agent/` or `.agents/` directory:
-
-1. **On conversation start**, silently check codebase freshness and auto-heal:
-   ```
-   python .agents/scripts/analyze.py . --check --auto-heal --inject-ki 2>/dev/null || python .agent/scripts/analyze.py . --check --auto-heal --inject-ki
-   ```
-
-2. **Result**: Every new conversation starts with fresh codebase knowledge in persistent memory.
-
-> This rule applies globally to ALL workspaces that have `.agent/scripts/analyze.py` or `.agents/scripts/analyze.py`.
-> The KI is stored per-project in `~/.gemini/antigravity-ide/knowledge/codebase-context-<project>/`.
+1. Injected `codebase-context-*` KI provides the index and recent patches at conversation start.
+2. Inspect code and directory structures directly via `view_file` and `grep_search`. Read `.agents/codebase_summary.md` for directory overviews.
+3. NEVER spawn background Python analyzer scripts. Access persistent KI and summary natively with zero overhead.
 """
 
     with open(rule_path, 'w', encoding='utf-8') as f:

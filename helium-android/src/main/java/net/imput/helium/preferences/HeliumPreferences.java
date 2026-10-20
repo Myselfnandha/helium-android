@@ -96,6 +96,14 @@ public final class HeliumPreferences {
         mPrefs.edit().putBoolean(KEY_ANTI_FINGERPRINT_ENABLED, enabled).apply();
     }
 
+    public boolean isCanvasFingerprintProtectionEnabled() {
+        return isAntiFingerprintEnabled();
+    }
+
+    public void setCanvasFingerprintProtectionEnabled(boolean enabled) {
+        setAntiFingerprintEnabled(enabled);
+    }
+
     public boolean isUrlTrackerStripperEnabled() {
         return mPrefs.getBoolean(KEY_URL_TRACKER_STRIPPER_ENABLED, true);
     }
