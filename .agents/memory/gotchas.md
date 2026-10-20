@@ -66,6 +66,10 @@ Before taking any architectural, coding, or tooling action, the agent must sweep
 - **Gotcha**: Adding standard Android SDK classes (e.g. `Build.VERSION.SDK_INT`) in Activity files that are excluded from lightweight JVM mock harnesses passes `./scripts/run_unit_tests.sh` locally but fails with `error: package Build does not exist` during full Gradle `compileReleaseJavaWithJavac` on CI.
 - **Rule**: Explicitly import all SDK packages (e.g. `import android.os.Build;`) and run an automated AST/import scanner in `./scripts/lint.sh` to verify symbol import completeness across all Java sources before pushing release tags.
 
+### 10. Local Model Method Name Discrepancies in Headless Unit Test Mocks
+- **Gotcha**: Using non-standard method names (like `getSubtitle()` on `SearchSuggestion` or `TAB_BOOKMARKS` on `BookmarksHistoryDialogFragment`) in new UI classes that were stubbed or omitted from local JVM test harnesses passed headless tests but broke Gradle CI compilation.
+- **Rule**: When referencing domain model properties, always inspect the exact existing getters in target model classes (`getExtra()`, `getTitle()`) or provide backwards-compatible aliases, and verify dialog factory arguments before wiring activities.
+
 ---
 
 ## 🔄 The 2-Way Immunization Protocol
