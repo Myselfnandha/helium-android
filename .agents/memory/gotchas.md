@@ -50,6 +50,10 @@ Before taking any architectural, coding, or tooling action, the agent must sweep
 - **Gotcha**: Using `python3 -c "..."` strips escaped quotes and breaks nested regex/string literals.
 - **Rule**: Always use quoted heredoc `python3 - << 'PYEOF'` in bash automation scripts to prevent shell variable or quote expansion.
 
+### 6. Local JVM Test Stubbing for Android SQLite & IPC
+- **Gotcha**: Testing core data components (`SearchSuggestionEngine`, `HeliumDbHelper`) from headless JVM tests causes `NoClassDefFoundError` or crashes without heavyweight mock frameworks.
+- **Rule**: Provide lightweight interface stubs in `scripts/run_unit_tests.sh` that satisfy compile dependencies and callback contracts without dragging in the full Android SQLite runtime.
+
 ---
 
 ## 🔄 The 2-Way Immunization Protocol

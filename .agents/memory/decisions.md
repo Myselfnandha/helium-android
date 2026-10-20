@@ -42,8 +42,16 @@ This document records durable architectural decisions, system invariants, and in
 - **Rationale**: Eliminates background battery drain, avoids untrusted external list fetches, and provides instant zero-latency subresource blocking.
 
 ### 10. User-Configurable Tab Session Restoration
-- **Decision**: Tab restoration behavior is user-configurable in Helium Preferences (restore last session tabs or start clean with Helium Start Page).
-- **Rationale**: Accommodates user privacy preferences and instant startup behavior.
+- **Decision**: Tab restoration behavior is user-configurable in Helium Preferences (restore last session tabs or start clean with Helium Start Page), strictly isolating incognito tabs from disk serialization.
+- **Rationale**: Accommodates user privacy preferences, prevents sensitive incognito URLs from touching flash storage, and delivers instant session resumption.
+
+### 11. Omnibox Client-Side Suggestions & Zero-Redirect Bangs
+- **Decision**: Real-time autocomplete suggestions prioritize local async SQLite history/bookmarks and 50+ instant DuckDuckGo/Helium `!bang` shortcuts directly on device without keystroke telemetry or remote search suggestion logging.
+- **Rationale**: Preserves zero-knowledge privacy, eliminates server roundtrip latency on search shortcuts, and provides instant interactive omnibox navigation.
+
+### 12. Privacy Shields Real-Time Auditability
+- **Decision**: The SSL lock icon in the top toolbar anchors a dedicated `PrivacyShieldDialogFragment` displaying real-time counts of blocked trackers/ads, HTTPS upgrade status, and per-site privacy controls.
+- **Rationale**: Gives users complete transparency and control over what the browser is blocking on every active web view.
 
 
 
