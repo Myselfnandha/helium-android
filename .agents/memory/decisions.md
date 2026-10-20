@@ -33,5 +33,9 @@ This document records durable architectural decisions, system invariants, and in
 - **Decision**: Repository root checkouts (like Chromium source trees) must be anchored with a leading slash (e.g. `/src/`) in `.gitignore`.
 - **Rationale**: Unanchored patterns match recursively at any directory depth, inadvertently ignoring subproject application source code (e.g. `helium-android/src/`).
 
+### 8. Deep Mobile Browser Subsystem Architecture
+- **Decision**: Every browser capability (`TabManager`, `AdBlockEngine`, `BangsRouter`, `UrlTrackerStripper`, `HttpsUpgrader`, `MediaPlaybackHost`, `HeliumDbHelper`, `VaultCrypto`) must be isolated as an independent, deep module with a compact public API.
+- **Rationale**: Keeps `HeliumMainActivity` as a coordinator rather than a monolith. Enables subresource network blocking before sockets open, non-blocking asynchronous SQLite persistence, and portable unit testing with zero Gradle/Chromium build overhead.
+
 
 

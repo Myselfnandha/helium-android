@@ -42,6 +42,14 @@ Before taking any architectural, coding, or tooling action, the agent must sweep
 - **Gotcha**: npm v12+ defaults `allow-remote="none"`, failing to install git-based tarball dependencies.
 - **Rule**: Configure `npm config set allow-remote all` during environment setup.
 
+### 4. `java.util.Base64` for Android API 26+ Data & Crypto Engines
+- **Gotcha**: Using `android.util.Base64` in non-UI data or crypto utilities breaks lightweight JVM unit tests (requiring mock Android runtimes).
+- **Rule**: Since `minSdk >= 26`, use standard `java.util.Base64` (`getEncoder()` / `getDecoder()`). It runs natively on desktop JVM unit tests and Android 8.0+.
+
+### 5. Quoted Heredocs for Python Embeds in Bash
+- **Gotcha**: Using `python3 -c "..."` strips escaped quotes and breaks nested regex/string literals.
+- **Rule**: Always use quoted heredoc `python3 - << 'PYEOF'` in bash automation scripts to prevent shell variable or quote expansion.
+
 ---
 
 ## 🔄 The 2-Way Immunization Protocol
