@@ -36,7 +36,7 @@ with tempfile.TemporaryDirectory() as tmpdir:
 
     os.makedirs(os.path.join(tmpdir, 'android/content'))
     with open(os.path.join(tmpdir, 'android/content/SharedPreferences.java'), 'w') as f:
-        f.write('package android.content; public interface SharedPreferences { interface Editor { Editor putBoolean(String k, boolean v); Editor putString(String k, String v); Editor remove(String k); Editor clear(); void apply(); } boolean contains(String k); java.util.Map<String, ?> getAll(); boolean getBoolean(String k, boolean def); String getString(String k, String def); Editor edit(); }')
+        f.write('package android.content; public interface SharedPreferences { interface Editor { Editor putBoolean(String k, boolean v); Editor putString(String k, String v); default Editor putInt(String k, int v) { return this; } default Editor putLong(String k, long v) { return this; } Editor remove(String k); Editor clear(); void apply(); } boolean contains(String k); java.util.Map<String, ?> getAll(); boolean getBoolean(String k, boolean def); String getString(String k, String def); default int getInt(String k, int def) { return def; } default long getLong(String k, long def) { return def; } Editor edit(); }')
     with open(os.path.join(tmpdir, 'android/content/Context.java'), 'w') as f:
         f.write('package android.content; public abstract class Context { public static final int MODE_PRIVATE = 0; public abstract Context getApplicationContext(); public abstract SharedPreferences getSharedPreferences(String n, int m); public abstract java.io.File getFilesDir(); public String getPackageName() { return "net.imput.helium"; } public <T> T getSystemService(Class<T> serviceClass) { return null; } public void sendBroadcast(Intent intent) {} }')
     with open(os.path.join(tmpdir, 'android/content/Intent.java'), 'w') as f:
@@ -57,6 +57,8 @@ public class Intent {
     public Intent() {}
     public Intent(String action) { mAction = action; }
     public Intent(String action, Uri uri) { mAction = action; mData = uri; }
+    public Intent(Context c, Class<?> cls) { mClassName = (cls != null) ? cls.getName() : null; }
+    public Intent setAction(String action) { mAction = action; return this; }
     public String getAction() { return mAction; }
     public Uri getData() { return mData; }
     public String getDataString() { return (mData != null) ? mData.toString() : null; }
@@ -68,20 +70,22 @@ public class Intent {
     public String getClassName() { return mClassName; }
     public Intent putExtra(String k, String v) { mExtras.put(k, v); return this; }
     public Intent putExtra(String k, boolean v) { mExtras.put(k, v); return this; }
+    public Intent putExtra(String k, int v) { mExtras.put(k, v); return this; }
     public Intent putExtra(String k, Object v) { mExtras.put(k, v); return this; }
     public String getStringExtra(String k) { Object v = mExtras.get(k); return (v instanceof String) ? (String) v : null; }
     public boolean getBooleanExtra(String k, boolean def) { Object v = mExtras.get(k); return (v instanceof Boolean) ? (Boolean) v : def; }
+    public int getIntExtra(String k, int def) { Object v = mExtras.get(k); return (v instanceof Integer) ? (Integer) v : def; }
 }''')
 
-    os.makedirs(os.path.join(tmpdir, 'android/util'))
+    os.makedirs(os.path.join(tmpdir, 'android/util'), exist_ok=True)
     with open(os.path.join(tmpdir, 'android/util/Log.java'), 'w') as f:
         f.write('package android.util; public class Log { public static int d(String t, String m) { return 0; } public static int i(String t, String m) { return 0; } public static int w(String t, String m) { return 0; } public static int e(String t, String m) { return 0; } }')
 
-    os.makedirs(os.path.join(tmpdir, 'android/graphics'))
+    os.makedirs(os.path.join(tmpdir, 'android/graphics'), exist_ok=True)
     with open(os.path.join(tmpdir, 'android/graphics/Bitmap.java'), 'w') as f:
         f.write('package android.graphics; public class Bitmap { public boolean isRecycled() { return false; } public void recycle() {} }')
 
-    os.makedirs(os.path.join(tmpdir, 'android/webkit'))
+    os.makedirs(os.path.join(tmpdir, 'android/webkit'), exist_ok=True)
     with open(os.path.join(tmpdir, 'android/webkit/JavascriptInterface.java'), 'w') as f:
         f.write('package android.webkit; import java.lang.annotation.*; @Retention(RetentionPolicy.CLASS) @Target({ElementType.METHOD}) public @interface JavascriptInterface {}')
     with open(os.path.join(tmpdir, 'android/webkit/WebView.java'), 'w') as f:
@@ -89,13 +93,13 @@ public class Intent {
     with open(os.path.join(tmpdir, 'android/webkit/WebResourceResponse.java'), 'w') as f:
         f.write('package android.webkit; import java.io.InputStream; import java.util.Map; public class WebResourceResponse { public WebResourceResponse(String mime, String enc, int code, String reason, Map<String, String> headers, InputStream data) {} }')
 
-    os.makedirs(os.path.join(tmpdir, 'android/os'))
+    os.makedirs(os.path.join(tmpdir, 'android/os'), exist_ok=True)
     with open(os.path.join(tmpdir, 'android/os/Looper.java'), 'w') as f:
         f.write('package android.os; public class Looper { public static Looper getMainLooper() { return new Looper(); } }')
     with open(os.path.join(tmpdir, 'android/os/Handler.java'), 'w') as f:
-        f.write('package android.os; public class Handler { public Handler() {} public Handler(Looper l) {} public boolean post(Runnable r) { r.run(); return true; } }')
+        f.write('package android.os; public class Handler { public Handler() {} public Handler(Looper l) {} public boolean post(Runnable r) { r.run(); return true; } public boolean postDelayed(Runnable r, long d) { r.run(); return true; } public void removeCallbacks(Runnable r) {} }')
     with open(os.path.join(tmpdir, 'android/os/Build.java'), 'w') as f:
-        f.write('package android.os; public class Build { public static class VERSION { public static final int SDK_INT = 34; } public static class VERSION_CODES { public static final int O = 26; } }')
+        f.write('package android.os; public class Build { public static class VERSION { public static final int SDK_INT = 34; } public static class VERSION_CODES { public static final int M = 23; public static final int O = 26; } }')
 
     os.makedirs(os.path.join(tmpdir, 'android/content/pm'))
     with open(os.path.join(tmpdir, 'android/content/pm/ShortcutManager.java'), 'w') as f:
@@ -107,11 +111,37 @@ public class Intent {
     with open(os.path.join(tmpdir, 'android/graphics/drawable/Icon.java'), 'w') as f:
         f.write('package android.graphics.drawable; import android.content.Context; import android.graphics.Bitmap; public class Icon { public static Icon createWithBitmap(Bitmap b) { return new Icon(); } public static Icon createWithResource(Context c, int resId) { return new Icon(); } }')
 
-    os.makedirs(os.path.join(tmpdir, 'net/imput/helium'))
-    with open(os.path.join(tmpdir, 'net/imput/helium/R.java'), 'w') as f:
-        f.write('package net.imput.helium; public class R { public static class drawable { public static final int ic_helium_logo = 100; } }')
+    os.makedirs(os.path.join(tmpdir, 'android/appwidget'), exist_ok=True)
+    with open(os.path.join(tmpdir, 'android/appwidget/AppWidgetProvider.java'), 'w') as f:
+        f.write('package android.appwidget; import android.content.Context; import android.content.Intent; public class AppWidgetProvider { public void onUpdate(Context c, AppWidgetManager m, int[] ids) {} public void onDeleted(Context c, int[] ids) {} public void onReceive(Context c, Intent i) {} }')
+    with open(os.path.join(tmpdir, 'android/appwidget/AppWidgetManager.java'), 'w') as f:
+        f.write('package android.appwidget; import android.content.Context; import android.widget.RemoteViews; public class AppWidgetManager { public static final String EXTRA_APPWIDGET_ID = "appWidgetId"; public void updateAppWidget(int id, RemoteViews v) {} }')
 
-    os.makedirs(os.path.join(tmpdir, 'net/imput/helium/database'))
+    os.makedirs(os.path.join(tmpdir, 'android/widget'), exist_ok=True)
+    with open(os.path.join(tmpdir, 'android/widget/RemoteViews.java'), 'w') as f:
+        f.write('package android.widget; import android.app.PendingIntent; public class RemoteViews { public RemoteViews(String p, int l) {} public void setOnClickPendingIntent(int id, PendingIntent pi) {} public void setViewVisibility(int id, int v) {} }')
+
+    os.makedirs(os.path.join(tmpdir, 'android/app'), exist_ok=True)
+    with open(os.path.join(tmpdir, 'android/app/PendingIntent.java'), 'w') as f:
+        f.write('package android.app; import android.content.Context; import android.content.Intent; public class PendingIntent { public static final int FLAG_UPDATE_CURRENT = 0x08000000; public static final int FLAG_IMMUTABLE = 0x04000000; public static PendingIntent getActivity(Context c, int r, Intent i, int f) { return new PendingIntent(); } }')
+
+    os.makedirs(os.path.join(tmpdir, 'android/view'), exist_ok=True)
+    with open(os.path.join(tmpdir, 'android/view/View.java'), 'w') as f:
+        f.write('package android.view; public class View { public static final int VISIBLE = 0; public static final int INVISIBLE = 4; public static final int GONE = 8; }')
+
+    os.makedirs(os.path.join(tmpdir, 'net/imput/helium/browser'), exist_ok=True)
+    with open(os.path.join(tmpdir, 'net/imput/helium/browser/HeliumMainActivity.java'), 'w') as f:
+        f.write('package net.imput.helium.browser; public class HeliumMainActivity { public static final String EXTRA_OPEN_BOOKMARKS = "net.imput.helium.widget.EXTRA_OPEN_BOOKMARKS"; }')
+
+    os.makedirs(os.path.join(tmpdir, 'net/imput/helium/widget'), exist_ok=True)
+    with open(os.path.join(tmpdir, 'net/imput/helium/widget/QuickSearchOverlayActivity.java'), 'w') as f:
+        f.write('package net.imput.helium.widget; public class QuickSearchOverlayActivity {}')
+
+    os.makedirs(os.path.join(tmpdir, 'net/imput/helium'), exist_ok=True)
+    with open(os.path.join(tmpdir, 'net/imput/helium/R.java'), 'w') as f:
+        f.write('package net.imput.helium; public class R { public static class drawable { public static final int ic_helium_logo = 100; } public static class layout { public static final int widget_search_bar = 200; } public static class id { public static final int widget_search_text = 301; public static final int widget_btn_logo = 302; public static final int widget_btn_mic = 303; public static final int widget_btn_bookmarks = 304; public static final int widget_btn_qr = 305; } }')
+
+    os.makedirs(os.path.join(tmpdir, 'net/imput/helium/database'), exist_ok=True)
     with open(os.path.join(tmpdir, 'net/imput/helium/database/HeliumDbHelper.java'), 'w') as f:
         f.write('''package net.imput.helium.database;
 import java.util.*;
@@ -238,6 +268,13 @@ public class Uri {
         os.path.join(tmpdir, 'android/os/Build.java'),
         os.path.join(tmpdir, 'android/content/pm/ShortcutManager.java'),
         os.path.join(tmpdir, 'android/content/pm/ShortcutInfo.java'),
+        os.path.join(tmpdir, 'android/appwidget/AppWidgetProvider.java'),
+        os.path.join(tmpdir, 'android/appwidget/AppWidgetManager.java'),
+        os.path.join(tmpdir, 'android/widget/RemoteViews.java'),
+        os.path.join(tmpdir, 'android/app/PendingIntent.java'),
+        os.path.join(tmpdir, 'android/view/View.java'),
+        os.path.join(tmpdir, 'net/imput/helium/browser/HeliumMainActivity.java'),
+        os.path.join(tmpdir, 'net/imput/helium/widget/QuickSearchOverlayActivity.java'),
         os.path.join(tmpdir, 'net/imput/helium/R.java'),
         'helium-android/src/main/java/net/imput/helium/privacy/permissions/SitePermissionRecord.java',
         os.path.join(tmpdir, 'net/imput/helium/database/HeliumDbHelper.java'),
@@ -265,7 +302,11 @@ public class Uri {
         'helium-android/src/main/java/net/imput/helium/browser/shortcut/WebAppManifest.java',
         'helium-android/src/main/java/net/imput/helium/diagnostics/HeliumDiagnostics.java',
         'helium-android/src/main/java/net/imput/helium/search/SearchSuggestion.java',
-        'helium-android/src/main/java/net/imput/helium/search/SearchSuggestionEngine.java'
+        'helium-android/src/main/java/net/imput/helium/search/SearchSuggestionEngine.java',
+        'helium-android/src/main/java/net/imput/helium/widget/WidgetPreferencesStore.java',
+        'helium-android/src/main/java/net/imput/helium/widget/SearchHistoryStore.java',
+        'helium-android/src/main/java/net/imput/helium/widget/QuickSearchController.java',
+        'helium-android/src/main/java/net/imput/helium/widget/SearchWidgetProvider.java'
     ], check=True)
 
     # Compile Tests
@@ -290,7 +331,11 @@ public class Uri {
         'helium-android/src/test/java/net/imput/helium/ProfileTest.java',
         'helium-android/src/test/java/net/imput/helium/PwaShortcutTest.java',
         'helium-android/src/test/java/net/imput/helium/WebAppManifestTest.java',
-        'helium-android/src/test/java/net/imput/helium/HeliumDiagnosticsTest.java'
+        'helium-android/src/test/java/net/imput/helium/HeliumDiagnosticsTest.java',
+        'helium-android/src/test/java/net/imput/helium/WidgetPreferencesStoreTest.java',
+        'helium-android/src/test/java/net/imput/helium/SearchHistoryStoreTest.java',
+        'helium-android/src/test/java/net/imput/helium/QuickSearchControllerTest.java',
+        'helium-android/src/test/java/net/imput/helium/SearchWidgetProviderTest.java'
     ], check=True)
 
     # Run Tests
@@ -316,7 +361,11 @@ public class Uri {
         'net.imput.helium.ProfileTest',
         'net.imput.helium.PwaShortcutTest',
         'net.imput.helium.WebAppManifestTest',
-        'net.imput.helium.HeliumDiagnosticsTest'
+        'net.imput.helium.HeliumDiagnosticsTest',
+        'net.imput.helium.WidgetPreferencesStoreTest',
+        'net.imput.helium.SearchHistoryStoreTest',
+        'net.imput.helium.QuickSearchControllerTest',
+        'net.imput.helium.SearchWidgetProviderTest'
     ], capture_output=True, text=True)
 
     print(res.stdout)

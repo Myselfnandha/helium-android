@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:background="@color/helium_background">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/widget_configure_title"
+        android:textColor="@color/helium_text_primary"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Widget Live Preview -->
+    <include
+        layout="@layout/widget_search_bar"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:layout_marginBottom="24dp" />
+
+    <!-- Corner Radius -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/widget_corner_radius"
+        android:textColor="@color/helium_text_primary"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <SeekBar
+        android:id="@+id/seekbar_corner_radius"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:min="8"
+        android:max="32"
+        android:progress="24"
+        android:layout_marginBottom="20dp" />
+
+    <!-- Shortcuts -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Widget Shortcuts"
+        android:textColor="@color/helium_text_primary"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="12dp" />
+
+    <CheckBox
+        android:id="@+id/cb_shortcut_voice"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/widget_voice_shortcut"
+        android:textColor="@color/helium_text_primary"
+        android:checked="true"
+        android:layout_marginBottom="8dp" />
+
+    <CheckBox
+        android:id="@+id/cb_shortcut_bookmarks"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/widget_bookmarks_shortcut"
+        android:textColor="@color/helium_text_primary"
+        android:checked="true"
+        android:layout_marginBottom="8dp" />
+
+    <CheckBox
+        android:id="@+id/cb_shortcut_qr"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/widget_qr_shortcut"
+        android:textColor="@color/helium_text_primary"
+        android:checked="false"
+        android:layout_marginBottom="24dp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <Button
+        android:id="@+id/btn_save_widget_config"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:text="@string/widget_btn_save"
+        android:textColor="#ffffff"
+        android:backgroundTint="@color/helium_accent_cyan" />
+
+</LinearLayout>

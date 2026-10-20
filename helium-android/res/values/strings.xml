@@ -50,4 +50,19 @@
     <string name="search_engine_brave">Brave Search (Independent)</string>
     <string name="search_engine_searxng">SearXNG (Decentralized Metasearch)</string>
     <string name="search_engine_startpage">Startpage (Private Google Results)</string>
+
+    <!-- Home-Screen Search Widget & Mini-Browser -->
+    <string name="search_widget_name">Helium Quick Search</string>
+    <string name="search_widget_desc">Quick search bar with floating mini-browser</string>
+    <string name="search_widget_hint">Search or enter URL</string>
+    <string name="widget_configure_title">Configure Search Widget</string>
+    <string name="widget_corner_radius">Corner Radius</string>
+    <string name="widget_theme">Widget Theme</string>
+    <string name="widget_voice_shortcut">Microphone Shortcut</string>
+    <string name="widget_bookmarks_shortcut">Bookmarks Shortcut</string>
+    <string name="widget_qr_shortcut">QR Scanner Shortcut</string>
+    <string name="widget_btn_save">Apply Settings</string>
+    <string name="mini_browser_expand">Open in full browser</string>
+    <string name="mini_browser_close">Close mini-browser</string>
+    <string name="mini_browser_minimize">Minimize to search</string>
 </resources>

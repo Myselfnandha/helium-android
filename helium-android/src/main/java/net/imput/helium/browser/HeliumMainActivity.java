@@ -443,7 +443,33 @@ public class HeliumMainActivity extends AppCompatActivity implements
     }
 
     private void handleIntent(Intent intent) {
-        if (intent != null && Intent.ACTION_VIEW.equals(intent.getAction())) {
+        if (intent == null) return;
+
+        // 1. Promote existing tab from floating mini-browser (zero duplicate tabs)
+        if (intent.hasExtra("extra_tab_id")) {
+            String tabId = intent.getStringExtra("extra_tab_id");
+            if (tabId != null && mTabManager.selectTab(tabId)) {
+                Tab tab = mTabManager.getActiveTab();
+                if (tab != null) {
+                    if (tab.getWebView() == null) {
+                        setupTabWebView(tab);
+                    }
+                    attachTabWebView(tab);
+                    updateOmniboxUrl(tab.getUrl());
+                    updateTabBadge();
+                }
+                return;
+            }
+        }
+
+        // 2. Open bookmarks dialog from widget shortcut
+        if (intent.getBooleanExtra(net.imput.helium.widget.SearchWidgetProvider.EXTRA_OPEN_BOOKMARKS, false)) {
+            BookmarksHistoryDialogFragment dialog = BookmarksHistoryDialogFragment.newInstance(BookmarksHistoryDialogFragment.TAB_BOOKMARKS);
+            dialog.show(getSupportFragmentManager(), "bookmarks_history_dialog");
+            return;
+        }
+
+        if (Intent.ACTION_VIEW.equals(intent.getAction())) {
             Uri data = intent.getData();
             if (data != null) {
                 String sanitized = UrlTrackerStripper.strip(data.toString());

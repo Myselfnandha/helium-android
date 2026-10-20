@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/fl_overlay_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#55000000">
+
+    <!-- 1. Compact Search Card (Stage 1 & 2) -->
+    <LinearLayout
+        android:id="@+id/card_compact_search"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|center_horizontal"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="56dp"
+        android:orientation="vertical"
+        android:background="@drawable/bg_floating_window"
+        android:elevation="8dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="12dp"
+            android:paddingEnd="8dp">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_helium_logo"
+                android:contentDescription="@string/helium_app_name" />
+
+            <EditText
+                android:id="@+id/et_quick_search"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@null"
+                android:hint="@string/search_widget_hint"
+                android:textColor="@color/helium_text_primary"
+                android:textColorHint="@color/helium_text_secondary"
+                android:textSize="15sp"
+                android:imeOptions="actionSearch"
+                android:inputType="textUri|textAutoCorrect"
+                android:maxLines="1"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp" />
+
+            <ImageView
+                android:id="@+id/btn_clear_search"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:padding="6dp"
+                android:visibility="gone"
+                android:src="@drawable/ic_close"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Clear" />
+
+            <ImageView
+                android:id="@+id/btn_voice_search"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:padding="6dp"
+                android:src="@drawable/ic_mic"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/widget_voice_shortcut" />
+
+        </LinearLayout>
+
+        <View
+            android:id="@+id/divider_suggestions"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:visibility="gone"
+            android:background="@color/helium_border" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_search_suggestions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:scrollbars="vertical" />
+
+    </LinearLayout>
+
+    <!-- 2. Floating Mini-Browser Window (Stage 3 & 4) -->
+    <LinearLayout
+        android:id="@+id/card_mini_browser"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginBottom="32dp"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:background="@drawable/bg_floating_window"
+        android:elevation="12dp">
+
+        <!-- Top Drag Header & Mini Toolbar -->
+        <LinearLayout
+            android:id="@+id/layout_drag_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@color/helium_surface">
+
+            <!-- Centered Drag Handle -->
+            <ImageView
+                android:id="@+id/iv_top_drag_handle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:paddingTop="6dp"
+                android:paddingBottom="4dp"
+                android:src="@drawable/ic_drag_handle"
+                android:contentDescription="Drag to move" />
+
+            <!-- Navigation Bar -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp">
+
+                <ImageView
+                    android:id="@+id/btn_mini_back"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:padding="4dp"
+                    android:src="@drawable/ic_history"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Back" />
+
+                <ImageView
+                    android:id="@+id/btn_mini_reload"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:padding="4dp"
+                    android:src="@drawable/ic_refresh"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Reload" />
+
+                <TextView
+                    android:id="@+id/tv_mini_omnibox"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    android:layout_marginEnd="6dp"
+                    android:textColor="@color/helium_text_primary"
+                    android:textSize="12sp"
+                    android:singleLine="true" />
+
+                <ImageView
+                    android:id="@+id/btn_mini_expand"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:padding="4dp"
+                    android:src="@drawable/ic_expand"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/mini_browser_expand" />
+
+                <ImageView
+                    android:id="@+id/btn_mini_minimize"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:padding="4dp"
+                    android:src="@drawable/ic_minimize"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/mini_browser_minimize" />
+
+                <ImageView
+                    android:id="@+id/btn_mini_close"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:padding="4dp"
+                    android:src="@drawable/ic_close"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/mini_browser_close" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/progress_mini_browser"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:visibility="gone"
+            android:max="100" />
+
+        <FrameLayout
+            android:id="@+id/container_mini_webview"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <!-- Bottom Resize Anchor -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="16dp"
+            android:background="@color/helium_surface">
+
+            <ImageView
+                android:id="@+id/btn_resize_handle"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_gravity="end|bottom"
+                android:src="@drawable/ic_expand"
+                android:tint="@color/helium_border"
+                android:contentDescription="Resize handle" />
+
+        </FrameLayout>
+
+    </LinearLayout>
+
+</FrameLayout>

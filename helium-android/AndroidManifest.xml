@@ -68,6 +68,39 @@
             android:exported="false"
             android:foregroundServiceType="dataSync" />
 
+        <!-- Home-Screen Search Widget Provider -->
+        <receiver
+            android:name="net.imput.helium.widget.SearchWidgetProvider"
+            android:exported="true"
+            android:label="@string/search_widget_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/helium_search_widget_info" />
+        </receiver>
+
+        <!-- Search Widget Configuration Activity -->
+        <activity
+            android:name="net.imput.helium.widget.SearchWidgetConfigureActivity"
+            android:exported="true"
+            android:label="@string/widget_configure_title"
+            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
+
+        <!-- Quick Search Translucent Typing Overlay & Floating Mini-Browser -->
+        <activity
+            android:name="net.imput.helium.widget.QuickSearchOverlayActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:theme="@style/Theme.Helium.Translucent"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
+            android:windowSoftInputMode="stateVisible|adjustResize" />
+
     </application>
 
 </manifest>
