@@ -37,5 +37,13 @@ This document records durable architectural decisions, system invariants, and in
 - **Decision**: Every browser capability (`TabManager`, `AdBlockEngine`, `BangsRouter`, `UrlTrackerStripper`, `HttpsUpgrader`, `MediaPlaybackHost`, `HeliumDbHelper`, `VaultCrypto`) must be isolated as an independent, deep module with a compact public API.
 - **Rationale**: Keeps `HeliumMainActivity` as a coordinator rather than a monolith. Enables subresource network blocking before sockets open, non-blocking asynchronous SQLite persistence, and portable unit testing with zero Gradle/Chromium build overhead.
 
+### 9. Zero-Network Built-in AdBlock Engine
+- **Decision**: Keep the built-in 500+ host filter list in memory without background network subscription fetching.
+- **Rationale**: Eliminates background battery drain, avoids untrusted external list fetches, and provides instant zero-latency subresource blocking.
+
+### 10. User-Configurable Tab Session Restoration
+- **Decision**: Tab restoration behavior is user-configurable in Helium Preferences (restore last session tabs or start clean with Helium Start Page).
+- **Rationale**: Accommodates user privacy preferences and instant startup behavior.
+
 
 
