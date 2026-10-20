@@ -56,3 +56,7 @@ This document records durable architectural decisions, system invariants, and in
 ### 13. Mobile WebExtension JavascriptInterface Bridge
 - **Decision**: `WebExtensionApiBridge` exposes `window.__helium_ext_bridge__` with client-side polyfills for `chrome.runtime.sendMessage` and `chrome.storage.local` backed by isolated Android `SharedPreferences`.
 - **Rationale**: Allows sideloaded Manifest V2/V3 packages and userscripts to persist settings and dispatch messages within mobile WebViews without requiring full Chromium multi-process extension daemons.
+
+### 14. Tab Organization, Granular Permissions, and Profile Environments
+- **Decision**: `TabGroup` and pinned tabs (M06) protect critical workflows during bulk closure and serialize cleanly across sessions. `SitePermissionsManager` (M18) manages per-origin sensor grants via in-memory caches and SQLite. `ProfileManager` (M21) isolates browsing environments, `PwaShortcutManager` (M25) pins web apps via Android `ShortcutManager`, and `HeliumDiagnostics` (M28) enforces strict URL and credential redaction.
+- **Rationale**: Delivers comprehensive desktop-to-mobile PRD parity while preserving touch ergonomics, zero-network battery efficiency, and zero-knowledge privacy.

@@ -40,6 +40,14 @@ public final class HeliumDbHelper extends SQLiteOpenHelper {
     public static final String COL_HISTORY_VISIT_COUNT = "visit_count";
     public static final String COL_HISTORY_LAST_VISITED = "last_visited_at";
 
+    // Site Permissions Table (PRD M18)
+    public static final String TABLE_SITE_PERMISSIONS = "site_permissions";
+    public static final String COL_PERMISSION_ID = "id";
+    public static final String COL_PERMISSION_ORIGIN = "origin";
+    public static final String COL_PERMISSION_NAME = "permission";
+    public static final String COL_PERMISSION_STATE = "state";
+    public static final String COL_PERMISSION_UPDATED = "updated_at";
+
     public interface Callback<T> {
         void onComplete(T result);
     }
@@ -82,12 +90,23 @@ public final class HeliumDbHelper extends SQLiteOpenHelper {
                 COL_HISTORY_LAST_VISITED + " INTEGER NOT NULL);");
         db.execSQL("CREATE INDEX idx_history_url ON " + TABLE_HISTORY + "(" + COL_HISTORY_URL + ");");
         db.execSQL("CREATE INDEX idx_history_visited ON " + TABLE_HISTORY + "(" + COL_HISTORY_LAST_VISITED + " DESC);");
+
+        // Site Permissions Schema (PRD M18)
+        db.execSQL("CREATE TABLE " + TABLE_SITE_PERMISSIONS + " (" +
+                COL_PERMISSION_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COL_PERMISSION_ORIGIN + " TEXT NOT NULL, " +
+                COL_PERMISSION_NAME + " TEXT NOT NULL, " +
+                COL_PERMISSION_STATE + " INTEGER NOT NULL, " +
+                COL_PERMISSION_UPDATED + " INTEGER NOT NULL, " +
+                "UNIQUE (" + COL_PERMISSION_ORIGIN + ", " + COL_PERMISSION_NAME + "));");
+        db.execSQL("CREATE INDEX idx_permissions_origin ON " + TABLE_SITE_PERMISSIONS + "(" + COL_PERMISSION_ORIGIN + ");");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_BOOKMARKS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_HISTORY);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_SITE_PERMISSIONS);
         onCreate(db);
     }
 
@@ -262,12 +281,96 @@ public final class HeliumDbHelper extends SQLiteOpenHelper {
         });
     }
 
+    // --- Site Permissions Operations (PRD M18) ---
+
+    public void setSitePermission(@NonNull String origin, @NonNull String permission, int state, @Nullable Callback<Boolean> callback) {
+        mExecutor.execute(() -> {
+            boolean success = false;
+            try {
+                SQLiteDatabase db = getWritableDatabase();
+                ContentValues cv = new ContentValues();
+                cv.put(COL_PERMISSION_ORIGIN, origin);
+                cv.put(COL_PERMISSION_NAME, permission);
+                cv.put(COL_PERMISSION_STATE, state);
+                cv.put(COL_PERMISSION_UPDATED, System.currentTimeMillis());
+                long id = db.insertWithOnConflict(TABLE_SITE_PERMISSIONS, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+                success = (id != -1);
+            } catch (Exception ignored) {}
+
+            boolean finalSuccess = success;
+            if (callback != null) {
+                mMainHandler.post(() -> callback.onComplete(finalSuccess));
+            }
+        });
+    }
+
+    public void getSitePermission(@NonNull String origin, @NonNull String permission, @NonNull Callback<Integer> callback) {
+        mExecutor.execute(() -> {
+            int state = 0; // STATE_PROMPT default
+            try {
+                SQLiteDatabase db = getReadableDatabase();
+                Cursor cursor = db.query(TABLE_SITE_PERMISSIONS,
+                        new String[]{COL_PERMISSION_STATE},
+                        COL_PERMISSION_ORIGIN + " = ? AND " + COL_PERMISSION_NAME + " = ?",
+                        new String[]{origin, permission}, null, null, null);
+                if (cursor != null) {
+                    if (cursor.moveToFirst()) {
+                        state = cursor.getInt(0);
+                    }
+                    cursor.close();
+                }
+            } catch (Exception ignored) {}
+
+            int finalState = state;
+            mMainHandler.post(() -> callback.onComplete(finalState));
+        });
+    }
+
+    public void getAllSitePermissions(@NonNull Callback<List<net.imput.helium.privacy.permissions.SitePermissionRecord>> callback) {
+        mExecutor.execute(() -> {
+            List<net.imput.helium.privacy.permissions.SitePermissionRecord> list = new ArrayList<>();
+            try {
+                SQLiteDatabase db = getReadableDatabase();
+                Cursor cursor = db.query(TABLE_SITE_PERMISSIONS, null, null, null, null, null, COL_PERMISSION_UPDATED + " DESC");
+                if (cursor != null) {
+                    while (cursor.moveToNext()) {
+                        long id = cursor.getLong(cursor.getColumnIndexOrThrow(COL_PERMISSION_ID));
+                        String origin = cursor.getString(cursor.getColumnIndexOrThrow(COL_PERMISSION_ORIGIN));
+                        String perm = cursor.getString(cursor.getColumnIndexOrThrow(COL_PERMISSION_NAME));
+                        int state = cursor.getInt(cursor.getColumnIndexOrThrow(COL_PERMISSION_STATE));
+                        long updated = cursor.getLong(cursor.getColumnIndexOrThrow(COL_PERMISSION_UPDATED));
+                        list.add(new net.imput.helium.privacy.permissions.SitePermissionRecord(id, origin, perm, state, updated));
+                    }
+                    cursor.close();
+                }
+            } catch (Exception ignored) {}
+
+            mMainHandler.post(() -> callback.onComplete(list));
+        });
+    }
+
+    public void clearSitePermissionsForOrigin(@NonNull String origin, @Nullable Callback<Boolean> callback) {
+        mExecutor.execute(() -> {
+            int rows = 0;
+            try {
+                SQLiteDatabase db = getWritableDatabase();
+                rows = db.delete(TABLE_SITE_PERMISSIONS, COL_PERMISSION_ORIGIN + " = ?", new String[]{origin});
+            } catch (Exception ignored) {}
+
+            boolean success = (rows > 0);
+            if (callback != null) {
+                mMainHandler.post(() -> callback.onComplete(success));
+            }
+        });
+    }
+
     public void clearAllBrowsingData(@Nullable Runnable onFinished) {
         mExecutor.execute(() -> {
             try {
                 SQLiteDatabase db = getWritableDatabase();
                 db.delete(TABLE_HISTORY, null, null);
                 db.delete(TABLE_BOOKMARKS, null, null);
+                db.delete(TABLE_SITE_PERMISSIONS, null, null);
             } catch (Exception ignored) {}
 
             if (onFinished != null) {

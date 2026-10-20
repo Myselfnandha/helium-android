@@ -1,0 +1,84 @@
+package net.imput.helium.browser.shortcut;
+
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.ShortcutInfo;
+import android.content.pm.ShortcutManager;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Icon;
+import android.net.Uri;
+import android.os.Build;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import net.imput.helium.R;
+
+/**
+ * PwaShortcutManager: Deep-module controller for Home-Screen Web Applications (PRD M25).
+ * Creates pinned shortcuts for web applications and websites with validation.
+ */
+public final class PwaShortcutManager {
+
+    /**
+     * Checks if a URL is eligible to be pinned as a home-screen web application.
+     * Only public HTTP and HTTPS websites can be pinned (rejects about:, file:, javascript:).
+     */
+    public static boolean isEligibleUrl(@Nullable String url) {
+        if (url == null || url.trim().isEmpty()) {
+            return false;
+        }
+        String lower = url.trim().toLowerCase();
+        return lower.startsWith("https://") || lower.startsWith("http://");
+    }
+
+    /**
+     * Builds the standalone launch intent for the pinned shortcut.
+     */
+    @NonNull
+    public static Intent buildShortcutIntent(@NonNull Context context, @NonNull String url, @NonNull String title) {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        intent.setPackage(context.getPackageName());
+        intent.putExtra("from_pwa_shortcut", true);
+        intent.putExtra("shortcut_title", title);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        return intent;
+    }
+
+    /**
+     * Requests the system launcher to pin a web application shortcut to the home screen.
+     */
+    public static boolean requestPinShortcut(@NonNull Context context, @NonNull String url, @NonNull String title, @Nullable Bitmap favicon) {
+        if (!isEligibleUrl(url)) {
+            return false;
+        }
+
+        String safeTitle = (title.trim().isEmpty()) ? url : title.trim();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            ShortcutManager shortcutManager = context.getSystemService(ShortcutManager.class);
+            if (shortcutManager != null && shortcutManager.isRequestPinShortcutSupported()) {
+                String shortcutId = "helium_pwa_" + Integer.toHexString(url.hashCode());
+                Intent intent = buildShortcutIntent(context, url, safeTitle);
+
+                ShortcutInfo.Builder builder = new ShortcutInfo.Builder(context, shortcutId)
+                        .setShortLabel(safeTitle)
+                        .setLongLabel(safeTitle)
+                        .setIntent(intent);
+
+                if (favicon != null && !favicon.isRecycled()) {
+                    builder.setIcon(Icon.createWithBitmap(favicon));
+                } else {
+                    builder.setIcon(Icon.createWithResource(context, R.drawable.ic_helium_logo));
+                }
+
+                return shortcutManager.requestPinShortcut(builder.build(), null);
+            }
+        }
+
+        // Legacy broadcast fallback
+        Intent installer = new Intent("com.android.launcher.action.INSTALL_SHORTCUT");
+        installer.putExtra(Intent.EXTRA_SHORTCUT_INTENT, buildShortcutIntent(context, url, safeTitle));
+        installer.putExtra(Intent.EXTRA_SHORTCUT_NAME, safeTitle);
+        context.sendBroadcast(installer);
+        return true;
+    }
+}

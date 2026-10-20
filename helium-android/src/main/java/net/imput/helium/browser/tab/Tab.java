@@ -20,6 +20,8 @@ public final class Tab {
     private Bitmap mFavicon;
     private WebView mWebView;
     private long mLastAccessedAt;
+    private String mGroupId;
+    private boolean mIsPinned;
 
     public Tab(@NonNull String url, boolean isIncognito) {
         this(UUID.randomUUID().toString(), url, isIncognito);
@@ -32,6 +34,8 @@ public final class Tab {
         mIsIncognito = isIncognito;
         mCreatedAt = System.currentTimeMillis();
         mLastAccessedAt = mCreatedAt;
+        mGroupId = null;
+        mIsPinned = false;
     }
 
     @NonNull
@@ -89,6 +93,23 @@ public final class Tab {
 
     public void setWebView(@Nullable WebView webView) {
         mWebView = webView;
+    }
+
+    @Nullable
+    public String getGroupId() {
+        return mGroupId;
+    }
+
+    public void setGroupId(@Nullable String groupId) {
+        mGroupId = groupId;
+    }
+
+    public boolean isPinned() {
+        return mIsPinned;
+    }
+
+    public void setPinned(boolean pinned) {
+        mIsPinned = pinned;
     }
 
     /**

@@ -23,6 +23,7 @@ public final class TabManager {
     private static volatile TabManager sInstance;
 
     private final List<Tab> mTabs = new ArrayList<>();
+    private final List<TabGroup> mGroups = new ArrayList<>();
     private final List<TabListener> mListeners = new CopyOnWriteArrayList<>();
     private String mActiveTabId;
 
@@ -142,20 +143,113 @@ public final class TabManager {
         return mTabs.size();
     }
 
+    // --- Tab Groups Operations (PRD M06) ---
+
+    @NonNull
+    public synchronized TabGroup createGroup(@NonNull String name, @NonNull String colorHex) {
+        TabGroup group = new TabGroup(name, colorHex);
+        mGroups.add(group);
+        return group;
+    }
+
+    public synchronized boolean deleteGroup(@NonNull String groupId) {
+        TabGroup target = getGroupById(groupId);
+        if (target == null) {
+            return false;
+        }
+        mGroups.remove(target);
+        // Dissociate any tabs that belonged to this group
+        for (Tab tab : mTabs) {
+            if (groupId.equals(tab.getGroupId())) {
+                tab.setGroupId(null);
+            }
+        }
+        return true;
+    }
+
+    @Nullable
+    public synchronized TabGroup getGroupById(@NonNull String groupId) {
+        for (TabGroup group : mGroups) {
+            if (group.getId().equals(groupId)) {
+                return group;
+            }
+        }
+        return null;
+    }
+
+    @NonNull
+    public synchronized List<TabGroup> getGroups() {
+        return Collections.unmodifiableList(new ArrayList<>(mGroups));
+    }
+
+    public synchronized void clearGroups() {
+        mGroups.clear();
+        for (Tab tab : mTabs) {
+            tab.setGroupId(null);
+        }
+    }
+
+    @NonNull
+    public synchronized List<Tab> getTabsInGroup(@NonNull String groupId) {
+        List<Tab> groupTabs = new ArrayList<>();
+        for (Tab tab : mTabs) {
+            if (groupId.equals(tab.getGroupId())) {
+                groupTabs.add(tab);
+            }
+        }
+        return Collections.unmodifiableList(groupTabs);
+    }
+
+    public synchronized void assignTabToGroup(@NonNull String tabId, @Nullable String groupId) {
+        Tab tab = findTabById(tabId);
+        if (tab != null) {
+            tab.setGroupId(groupId);
+        }
+    }
+
+    public synchronized void setTabPinned(@NonNull String tabId, boolean isPinned) {
+        Tab tab = findTabById(tabId);
+        if (tab != null) {
+            tab.setPinned(isPinned);
+        }
+    }
+
     /**
-     * Closes all tabs, releasing memory for all associated WebViews.
+     * Closes all unpinned tabs, preserving pinned tabs.
      */
     public synchronized void closeAllTabs() {
+        closeAllTabs(false);
+    }
+
+    /**
+     * Closes tabs, with option to include pinned tabs.
+     */
+    public synchronized void closeAllTabs(boolean includePinned) {
+        List<Tab> toClose = new ArrayList<>();
         for (Tab tab : mTabs) {
+            if (includePinned || !tab.isPinned()) {
+                toClose.add(tab);
+            }
+        }
+
+        for (Tab tab : toClose) {
+            mTabs.remove(tab);
             tab.destroy();
             for (TabListener l : mListeners) {
                 l.onTabClosed(tab);
             }
         }
-        mTabs.clear();
-        mActiveTabId = null;
+
+        if (mActiveTabId != null && findTabById(mActiveTabId) == null) {
+            if (!mTabs.isEmpty()) {
+                selectTab(mTabs.get(0).getId());
+            } else {
+                mActiveTabId = null;
+            }
+        }
+
         for (TabListener l : mListeners) {
-            l.onTabCountChanged(0);
+            l.onTabCountChanged(mTabs.size());
         }
     }
 
@@ -181,7 +275,7 @@ public final class TabManager {
     }
 
     /**
-     * Serializes all non-incognito open tabs and active selection into JSON.
+     * Serializes all non-incognito open tabs, active selection, and tab groups into JSON.
      */
     @NonNull
     public synchronized String serializeSession() {
@@ -189,7 +283,15 @@ public final class TabManager {
             org.json.JSONObject root = new org.json.JSONObject();
             root.put("activeId", mActiveTabId);
 
-            org.json.JSONArray array = new org.json.JSONArray();
+            // Serialize Tab Groups
+            org.json.JSONArray groupsArray = new org.json.JSONArray();
+            for (TabGroup group : mGroups) {
+                groupsArray.put(group.toJsonObject());
+            }
+            root.put("groups", groupsArray);
+
+            // Serialize Tabs
+            org.json.JSONArray tabsArray = new org.json.JSONArray();
             for (Tab tab : mTabs) {
                 // Never persist private / incognito tabs
                 if (!tab.isIncognito()) {
@@ -197,10 +299,16 @@ public final class TabManager {
                     t.put("id", tab.getId());
                     t.put("url", tab.getUrl());
                     t.put("title", tab.getTitle());
-                    array.put(t);
+                    if (tab.getGroupId() != null) {
+                        t.put("groupId", tab.getGroupId());
+                    }
+                    if (tab.isPinned()) {
+                        t.put("pinned", true);
+                    }
+                    tabsArray.put(t);
                 }
             }
-            root.put("tabs", array);
+            root.put("tabs", tabsArray);
             return root.toString();
         } catch (org.json.JSONException e) {
             return "";
@@ -208,7 +316,7 @@ public final class TabManager {
     }
 
     /**
-     * Restores open tabs and active tab from a serialized session JSON.
+     * Restores open tabs, active tab, and tab groups from a serialized session JSON.
      * Returns true if at least one tab was successfully restored.
      */
     public synchronized boolean restoreSession(@Nullable String sessionJson) {
@@ -218,22 +326,38 @@ public final class TabManager {
 
         try {
             org.json.JSONObject root = new org.json.JSONObject(sessionJson);
-            org.json.JSONArray array = root.optJSONArray("tabs");
-            if (array == null || array.length() == 0) {
+            org.json.JSONArray tabsArray = root.optJSONArray("tabs");
+            if (tabsArray == null || tabsArray.length() == 0) {
                 return false;
             }
 
-            closeAllTabs();
+            closeAllTabs(true);
+            mGroups.clear();
+
+            // Restore Groups
+            org.json.JSONArray groupsArray = root.optJSONArray("groups");
+            if (groupsArray != null) {
+                for (int i = 0; i < groupsArray.length(); i++) {
+                    org.json.JSONObject gObj = groupsArray.getJSONObject(i);
+                    mGroups.add(TabGroup.fromJsonObject(gObj));
+                }
+            }
 
             String savedActiveId = root.optString("activeId", null);
-            for (int i = 0; i < array.length(); i++) {
-                org.json.JSONObject t = array.getJSONObject(i);
+            for (int i = 0; i < tabsArray.length(); i++) {
+                org.json.JSONObject t = tabsArray.getJSONObject(i);
                 String id = t.optString("id");
                 String url = t.optString("url", "about:blank");
                 String title = t.optString("title", "New Tab");
+                String groupId = t.optString("groupId", null);
+                boolean pinned = t.optBoolean("pinned", false);
 
                 Tab tab = new Tab(id, url, false);
                 tab.setTitle(title);
+                if (groupId != null && !groupId.isEmpty()) {
+                    tab.setGroupId(groupId);
+                }
+                tab.setPinned(pinned);
                 mTabs.add(tab);
 
                 for (TabListener l : mListeners) {

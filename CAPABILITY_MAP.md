@@ -10,7 +10,13 @@ Helium Browser for Android is an open-source, hardened mobile Chromium browser b
 | `privacy-shields` | `HeliumNoiseController` (Canvas/Audio/WebGL), `UrlTrackerStripper`, and `HttpsUpgrader` | `ExtensionRuntimeInjector` & Omnibox routing | `core-vanadium` |
 | `search-bangs` | `BangsRouter` with 50+ privacy and developer search shortcut tags (`!w`, `!gh`, `!yt`, `!ddg`) | Omnibox submission path | — |
 | `tab-session` | `TabManager` and `Tab` models managing multi-tab lifecycle, active selection, incognito isolation, and memory pausing | `TabManager.addListener()` & `TabsDialogFragment` | — |
-| `storage-db` | `HeliumDbHelper` SQLite backing store for History and Bookmarks with background thread pool | `HeliumDbHelper.Callback<T>` | — |
+| `tab-groups-pins` | `TabGroup`, color badges, pinned tab protection from closure, and group-aware session persistence | `TabManager` & `TabsDialogFragment` | `tab-session` |
+| `storage-db` | `HeliumDbHelper` SQLite backing store for History, Bookmarks, and Site Permissions with background thread pool | `HeliumDbHelper.Callback<T>` | — |
+| `bookmark-folders`| `BookmarkFolder` hierarchical folder entity with circular nesting and cycle prevention | `HeliumDbHelper` | `storage-db` |
+| `site-permissions`| `SitePermissionsManager` granular per-origin sensor and capability authorization (Camera, Mic, Geo, Notifications, Clipboard) | `WebChromeClient` callbacks | `storage-db` |
+| `profile-environments` | `ProfileManager` and `Profile` persistent browsing environments and switching | `ProfileManager.addListener()` | — |
+| `pwa-shortcuts` | `PwaShortcutManager` home-screen web application pinning via Android `ShortcutManager` | `HeliumMainActivity` overflow menu | — |
+| `privacy-diagnostics` | `HeliumDiagnostics` privacy-safe error logging, URL redaction, credential scrubbing, and failure metrics | Cross-cutting error hooks | — |
 | `extensions-engine` | Kiwi/Titanium Android extension runtime, Chrome Web Store compatibility, CRX sideloading, and `ExtensionRuntimeInjector` | WebExtension background worker & DOM injection | `core-vanadium` |
 | `media-enhancements` | `MediaPlaybackHost` with `PARTIAL_WAKE_LOCK` and `visibilityState` spoofing for background video/audio | Activity lifecycle (`onPause`/`onResume`) | `core-vanadium` |
 | `vault-sync` | Helium Private Vault Sync (`helium/core/sync/vault`) E2EE protocol, `VaultCrypto` (AES-256-GCM + PBKDF2), and `VaultBundle` | `VaultClient` & Android Sync Adapter | `core-vanadium`, `storage-db` |

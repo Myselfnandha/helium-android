@@ -130,6 +130,22 @@ public class TabsDialogFragment extends BottomSheetDialogFragment {
                 holder.ivIcon.setImageResource(tab.isIncognito() ? R.drawable.ic_shield_check : R.drawable.ic_helium_logo);
             }
 
+            // Pin indicator (PRD M06)
+            holder.ivPin.setVisibility(tab.isPinned() ? View.VISIBLE : View.GONE);
+
+            // Tab Group badge (PRD M06)
+            if (tab.getGroupId() != null) {
+                net.imput.helium.browser.tab.TabGroup group = mTabManager.getGroupById(tab.getGroupId());
+                if (group != null) {
+                    holder.tvGroupBadge.setText(group.getName());
+                    holder.tvGroupBadge.setVisibility(View.VISIBLE);
+                } else {
+                    holder.tvGroupBadge.setVisibility(View.GONE);
+                }
+            } else {
+                holder.tvGroupBadge.setVisibility(View.GONE);
+            }
+
             holder.itemView.setSelected(isActive);
             holder.itemView.setAlpha(isActive ? 1.0f : 0.85f);
 
@@ -139,6 +155,13 @@ public class TabsDialogFragment extends BottomSheetDialogFragment {
                     mActionListener.onTabSelected(tab);
                 }
                 dismiss();
+            });
+
+            // Long-click to toggle pin status
+            holder.itemView.setOnLongClickListener(v -> {
+                mTabManager.setTabPinned(tab.getId(), !tab.isPinned());
+                notifyItemChanged(position);
+                return true;
             });
 
             holder.btnClose.setOnClickListener(v -> {
@@ -163,6 +186,8 @@ public class TabsDialogFragment extends BottomSheetDialogFragment {
             final ImageView ivIcon;
             final TextView tvTitle;
             final TextView tvUrl;
+            final ImageView ivPin;
+            final TextView tvGroupBadge;
             final ImageView btnClose;
 
             TabViewHolder(@NonNull View itemView) {
@@ -170,6 +195,8 @@ public class TabsDialogFragment extends BottomSheetDialogFragment {
                 ivIcon = itemView.findViewById(R.id.iv_tab_icon);
                 tvTitle = itemView.findViewById(R.id.tv_tab_title);
                 tvUrl = itemView.findViewById(R.id.tv_tab_url);
+                ivPin = itemView.findViewById(R.id.iv_pin_indicator);
+                tvGroupBadge = itemView.findViewById(R.id.tv_tab_group_badge);
                 btnClose = itemView.findViewById(R.id.btn_close_tab);
             }
         }

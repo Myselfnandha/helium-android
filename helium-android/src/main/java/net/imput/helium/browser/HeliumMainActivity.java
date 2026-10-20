@@ -96,6 +96,7 @@ public class HeliumMainActivity extends AppCompatActivity implements
     private HttpsUpgrader mHttpsUpgrader;
     private HeliumDbHelper mDbHelper;
     private HeliumDownloadHandler mDownloadHandler;
+    private net.imput.helium.privacy.permissions.SitePermissionsManager mSitePermissionsManager;
 
     private boolean mIsDesktopMode = false;
 
@@ -112,6 +113,7 @@ public class HeliumMainActivity extends AppCompatActivity implements
         mHttpsUpgrader = new HttpsUpgrader(mPreferences);
         mDbHelper = HeliumDbHelper.getInstance(this);
         mDownloadHandler = new HeliumDownloadHandler(this);
+        mSitePermissionsManager = net.imput.helium.privacy.permissions.SitePermissionsManager.getInstance(this);
 
         mTabManager.addListener(this);
 
@@ -372,6 +374,19 @@ public class HeliumMainActivity extends AppCompatActivity implements
             }
 
             @Override
+            public void onGeolocationPermissionsShowPrompt(String origin, android.webkit.GeolocationPermissions.Callback callback) {
+                net.imput.helium.privacy.permissions.SitePermissionsManager.State state =
+                        mSitePermissionsManager.getPermissionState(origin, net.imput.helium.privacy.permissions.SitePermissionRecord.PERMISSION_GEOLOCATION);
+                if (state == net.imput.helium.privacy.permissions.SitePermissionsManager.State.DENY) {
+                    callback.invoke(origin, false, false);
+                } else if (state == net.imput.helium.privacy.permissions.SitePermissionsManager.State.ALLOW) {
+                    callback.invoke(origin, true, true);
+                } else {
+                    callback.invoke(origin, true, false);
+                }
+            }
+
+            @Override
             public void onShowCustomView(View view, CustomViewCallback callback) {
                 if (mCustomView != null) {
                     callback.onCustomViewHidden();
@@ -538,11 +553,12 @@ public class HeliumMainActivity extends AppCompatActivity implements
         popup.getMenu().add(0, 4, 3, "Bookmarks");
         popup.getMenu().add(0, 5, 4, "History");
         popup.getMenu().add(0, 6, 5, mIsDesktopMode ? "Mobile Site" : "Desktop Site");
-        popup.getMenu().add(0, 7, 6, "Extensions");
-        popup.getMenu().add(0, 8, 7, "DevTools (Eruda)");
-        popup.getMenu().add(0, 11, 8, "Private Vault Sync");
-        popup.getMenu().add(0, 9, 9, "Clear Browsing Data");
-        popup.getMenu().add(0, 10, 10, "Settings");
+        popup.getMenu().add(0, 12, 6, "Add to Home Screen");
+        popup.getMenu().add(0, 7, 7, "Extensions");
+        popup.getMenu().add(0, 8, 8, "DevTools (Eruda)");
+        popup.getMenu().add(0, 11, 9, "Private Vault Sync");
+        popup.getMenu().add(0, 9, 10, "Clear Browsing Data");
+        popup.getMenu().add(0, 10, 11, "Settings");
 
         popup.setOnMenuItemClickListener(this::onOverflowMenuItemClick);
         popup.show();
@@ -567,6 +583,9 @@ public class HeliumMainActivity extends AppCompatActivity implements
                 return true;
             case 6: // Desktop Site Toggle
                 toggleDesktopSite();
+                return true;
+            case 12: // Add to Home Screen (PRD M25)
+                addToHomeScreen();
                 return true;
             case 7: // Extensions
                 startActivity(new Intent(this, HeliumExtensionsActivity.class));
@@ -633,6 +652,19 @@ public class HeliumMainActivity extends AppCompatActivity implements
             }
             active.reload();
             Toast.makeText(this, mIsDesktopMode ? "Desktop view enabled" : "Mobile view enabled", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void addToHomeScreen() {
+        Tab active = mTabManager.getActiveTab();
+        if (active != null && !active.getUrl().isEmpty()) {
+            boolean requested = net.imput.helium.browser.shortcut.PwaShortcutManager.requestPinShortcut(
+                    this, active.getUrl(), active.getTitle(), active.getFavicon());
+            if (requested) {
+                Toast.makeText(this, "Shortcut pinned to Home Screen", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Cannot create shortcut for this page", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
