@@ -54,6 +54,10 @@ Before taking any architectural, coding, or tooling action, the agent must sweep
 - **Gotcha**: Testing core data components (`SearchSuggestionEngine`, `HeliumDbHelper`) from headless JVM tests causes `NoClassDefFoundError` or crashes without heavyweight mock frameworks.
 - **Rule**: Provide lightweight interface stubs in `scripts/run_unit_tests.sh` that satisfy compile dependencies and callback contracts without dragging in the full Android SQLite runtime.
 
+### 7. Dual-Theme Color Resource Aliasing & CI Javac Synchronization
+- **Gotcha**: Referencing color symbols in Java UI classes (e.g. `R.color.helium_warning_amber`) that differ from resource definitions (like `R.color.helium_shield_warning`) passes script-based XML linters but breaks the Gradle compilation pipeline on CI.
+- **Rule**: Declare explicit alias definitions across both `res/values/colors.xml` and `res/values-night/colors.xml` for all semantic UI tokens to guarantee total compile-time safety across themes.
+
 ---
 
 ## 🔄 The 2-Way Immunization Protocol
