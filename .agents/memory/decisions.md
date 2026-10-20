@@ -53,5 +53,6 @@ This document records durable architectural decisions, system invariants, and in
 - **Decision**: The SSL lock icon in the top toolbar anchors a dedicated `PrivacyShieldDialogFragment` displaying real-time counts of blocked trackers/ads, HTTPS upgrade status, and per-site privacy controls.
 - **Rationale**: Gives users complete transparency and control over what the browser is blocking on every active web view.
 
-
-
+### 13. Mobile WebExtension JavascriptInterface Bridge
+- **Decision**: `WebExtensionApiBridge` exposes `window.__helium_ext_bridge__` with client-side polyfills for `chrome.runtime.sendMessage` and `chrome.storage.local` backed by isolated Android `SharedPreferences`.
+- **Rationale**: Allows sideloaded Manifest V2/V3 packages and userscripts to persist settings and dispatch messages within mobile WebViews without requiring full Chromium multi-process extension daemons.
