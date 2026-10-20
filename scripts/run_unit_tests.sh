@@ -63,7 +63,9 @@ public class Intent {
     public Intent setPackage(String p) { mPackage = p; return this; }
     public String getPackage() { return mPackage; }
     public Intent addFlags(int f) { mFlags |= f; return this; }
-    public int getFlags() { return mFlags; }
+    private String mClassName;
+    public Intent setClassName(String p, String c) { mPackage = p; mClassName = c; return this; }
+    public String getClassName() { return mClassName; }
     public Intent putExtra(String k, String v) { mExtras.put(k, v); return this; }
     public Intent putExtra(String k, boolean v) { mExtras.put(k, v); return this; }
     public Intent putExtra(String k, Object v) { mExtras.put(k, v); return this; }
@@ -260,6 +262,7 @@ public class Uri {
         'helium-android/src/main/java/net/imput/helium/profile/Profile.java',
         'helium-android/src/main/java/net/imput/helium/profile/ProfileManager.java',
         'helium-android/src/main/java/net/imput/helium/browser/shortcut/PwaShortcutManager.java',
+        'helium-android/src/main/java/net/imput/helium/browser/shortcut/WebAppManifest.java',
         'helium-android/src/main/java/net/imput/helium/diagnostics/HeliumDiagnostics.java',
         'helium-android/src/main/java/net/imput/helium/search/SearchSuggestion.java',
         'helium-android/src/main/java/net/imput/helium/search/SearchSuggestionEngine.java'
@@ -286,6 +289,7 @@ public class Uri {
         'helium-android/src/test/java/net/imput/helium/BookmarkFolderTest.java',
         'helium-android/src/test/java/net/imput/helium/ProfileTest.java',
         'helium-android/src/test/java/net/imput/helium/PwaShortcutTest.java',
+        'helium-android/src/test/java/net/imput/helium/WebAppManifestTest.java',
         'helium-android/src/test/java/net/imput/helium/HeliumDiagnosticsTest.java'
     ], check=True)
 
@@ -311,6 +315,7 @@ public class Uri {
         'net.imput.helium.BookmarkFolderTest',
         'net.imput.helium.ProfileTest',
         'net.imput.helium.PwaShortcutTest',
+        'net.imput.helium.WebAppManifestTest',
         'net.imput.helium.HeliumDiagnosticsTest'
     ], capture_output=True, text=True)
 

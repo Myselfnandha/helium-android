@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/helium_background">
+
+    <!-- Standalone PWA Top Bar (PRD M25) -->
+    <LinearLayout
+        android:id="@+id/layout_pwa_topbar"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="12dp"
+        android:background="@color/helium_surface">
+
+        <ImageView
+            android:id="@+id/btn_pwa_close"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:padding="6dp"
+            android:src="@drawable/ic_close"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Close Web App" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginStart="8dp">
+
+            <TextView
+                android:id="@+id/tv_pwa_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Web Application"
+                android:textColor="@color/helium_text_primary"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:singleLine="true" />
+
+            <TextView
+                android:id="@+id/tv_pwa_origin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="https://example.com"
+                android:textColor="@color/helium_text_secondary"
+                android:textSize="11sp"
+                android:singleLine="true" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/btn_pwa_reload"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:padding="6dp"
+            android:src="@drawable/ic_refresh"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Reload" />
+
+        <ImageView
+            android:id="@+id/btn_pwa_more"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:padding="6dp"
+            android:src="@drawable/ic_more_vert"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Web App Options" />
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/progress_pwa"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:visibility="gone"
+        android:indeterminate="false"
+        android:max="100" />
+
+    <FrameLayout
+        android:id="@+id/container_pwa_webview"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+</LinearLayout>

@@ -52,6 +52,16 @@
             android:label="@string/extensions_title"
             android:configChanges="orientation|screenSize|screenLayout" />
 
+        <!-- Progressive Web Application Standalone Window (PRD M25) -->
+        <activity
+            android:name="net.imput.helium.browser.shortcut.PwaActivity"
+            android:exported="true"
+            android:label="@string/helium_app_name"
+            android:launchMode="singleTop"
+            android:documentLaunchMode="intoExisting"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
+            android:windowSoftInputMode="adjustResize" />
+
         <!-- Background Vault Synchronization Service -->
         <service
             android:name="net.imput.helium.sync.VaultSyncService"

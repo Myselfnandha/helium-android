@@ -15,7 +15,7 @@ Helium Browser for Android is an open-source, hardened mobile Chromium browser b
 | `bookmark-folders`| `BookmarkFolder` hierarchical folder entity with circular nesting and cycle prevention | `HeliumDbHelper` | `storage-db` |
 | `site-permissions`| `SitePermissionsManager` granular per-origin sensor and capability authorization (Camera, Mic, Geo, Notifications, Clipboard) | `WebChromeClient` callbacks | `storage-db` |
 | `profile-environments` | `ProfileManager` and `Profile` persistent browsing environments and switching | `ProfileManager.addListener()` | — |
-| `pwa-shortcuts` | `PwaShortcutManager` home-screen web application pinning via Android `ShortcutManager` | `HeliumMainActivity` overflow menu | — |
+| `pwa-standalone` | `PwaShortcutManager`, `WebAppManifest` W3C parser, and `PwaActivity` standalone frameless presentation window with separate task switcher integration | `HeliumMainActivity` overflow menu & System launcher shortcuts | — |
 | `privacy-diagnostics` | `HeliumDiagnostics` privacy-safe error logging, URL redaction, credential scrubbing, and failure metrics | Cross-cutting error hooks | — |
 | `extensions-engine` | Kiwi/Titanium Android extension runtime, Chrome Web Store compatibility, CRX sideloading, and `ExtensionRuntimeInjector` | WebExtension background worker & DOM injection | `core-vanadium` |
 | `media-enhancements` | `MediaPlaybackHost` with `PARTIAL_WAKE_LOCK` and `visibilityState` spoofing for background video/audio | Activity lifecycle (`onPause`/`onResume`) | `core-vanadium` |

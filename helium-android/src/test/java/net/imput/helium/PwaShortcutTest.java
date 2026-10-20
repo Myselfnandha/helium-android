@@ -48,5 +48,39 @@ public class PwaShortcutTest {
         assertEquals("https://news.ycombinator.com", intent.getDataString());
         assertEquals(title, intent.getStringExtra("shortcut_title"));
         assertTrue(intent.getBooleanExtra("from_pwa_shortcut", false));
+        assertEquals(url, intent.getStringExtra(PwaShortcutManager.EXTRA_PWA_URL));
+        assertEquals(title, intent.getStringExtra(PwaShortcutManager.EXTRA_PWA_TITLE));
+        assertEquals(PwaShortcutManager.PWA_ACTIVITY_CLASS, intent.getClassName());
+    }
+
+    @Test
+    public void testBuildShortcutIntentWithThemeColor() {
+        MockContext context = new MockContext();
+        String url = "https://app.slack.com";
+        String title = "Slack";
+        String themeColor = "#4A154B";
+
+        Intent intent = PwaShortcutManager.buildShortcutIntent(context, url, title, themeColor);
+        assertNotNull(intent);
+        assertEquals(themeColor, intent.getStringExtra(PwaShortcutManager.EXTRA_PWA_THEME_COLOR));
+        assertEquals(url, intent.getStringExtra(PwaShortcutManager.EXTRA_PWA_URL));
+    }
+
+    @Test
+    public void testRequestPinShortcutFromManifest() {
+        MockContext context = new MockContext();
+        net.imput.helium.browser.shortcut.WebAppManifest manifest =
+                new net.imput.helium.browser.shortcut.WebAppManifest(
+                        "Twitter Lite",
+                        "Twitter",
+                        "https://mobile.twitter.com",
+                        net.imput.helium.browser.shortcut.WebAppManifest.DisplayMode.STANDALONE,
+                        "#1DA1F2",
+                        "#000000",
+                        java.util.Collections.emptyList()
+                );
+
+        boolean pinned = PwaShortcutManager.requestPinShortcut(context, manifest, null);
+        assertTrue("Eligible PWA manifest should be accepted for pinning", pinned);
     }
 }

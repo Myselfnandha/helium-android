@@ -657,7 +657,48 @@ public class HeliumMainActivity extends AppCompatActivity implements
 
     private void addToHomeScreen() {
         Tab active = mTabManager.getActiveTab();
-        if (active != null && !active.getUrl().isEmpty()) {
+        if (active == null || active.getUrl().isEmpty()) return;
+
+        WebView webView = active.getWebView();
+        if (webView != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            String js = "(function(){"
+                    + "var m = document.querySelector('link[rel=\"manifest\"]');"
+                    + "var tc = document.querySelector('meta[name=\"theme-color\"]');"
+                    + "return JSON.stringify({"
+                    + "  manifest: m ? m.href : '',"
+                    + "  themeColor: tc ? tc.content : '',"
+                    + "  title: document.title || ''"
+                    + "});"
+                    + "})()";
+            webView.evaluateJavascript(js, result -> {
+                String title = active.getTitle();
+                String themeColor = null;
+                if (result != null && !result.equals("null") && !result.isEmpty()) {
+                    try {
+                        String unescaped = result;
+                        if (unescaped.startsWith("\"") && unescaped.endsWith("\"")) {
+                            unescaped = new org.json.JSONTokener(unescaped).nextValue().toString();
+                        }
+                        org.json.JSONObject obj = new org.json.JSONObject(unescaped);
+                        String extractedTitle = obj.optString("title", "");
+                        if (!extractedTitle.isEmpty()) {
+                            title = extractedTitle;
+                        }
+                        String tc = obj.optString("themeColor", "");
+                        if (!tc.isEmpty()) {
+                            themeColor = tc;
+                        }
+                    } catch (Exception ignored) {}
+                }
+                boolean requested = net.imput.helium.browser.shortcut.PwaShortcutManager.requestPinShortcut(
+                        this, active.getUrl(), title, active.getFavicon(), themeColor);
+                if (requested) {
+                    Toast.makeText(this, "Shortcut pinned to Home Screen", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "Cannot create shortcut for this page", Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
             boolean requested = net.imput.helium.browser.shortcut.PwaShortcutManager.requestPinShortcut(
                     this, active.getUrl(), active.getTitle(), active.getFavicon());
             if (requested) {
