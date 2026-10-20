@@ -54,6 +54,12 @@ with tempfile.TemporaryDirectory() as tmpdir:
     with open(os.path.join(tmpdir, 'android/webkit/WebResourceResponse.java'), 'w') as f:
         f.write('package android.webkit; import java.io.InputStream; import java.util.Map; public class WebResourceResponse { public WebResourceResponse(String mime, String enc, int code, String reason, Map<String, String> headers, InputStream data) {} }')
 
+    os.makedirs(os.path.join(tmpdir, 'android/os'))
+    with open(os.path.join(tmpdir, 'android/os/Looper.java'), 'w') as f:
+        f.write('package android.os; public class Looper { public static Looper getMainLooper() { return new Looper(); } }')
+    with open(os.path.join(tmpdir, 'android/os/Handler.java'), 'w') as f:
+        f.write('package android.os; public class Handler { public Handler() {} public Handler(Looper l) {} public boolean post(Runnable r) { r.run(); return true; } }')
+
     os.makedirs(os.path.join(tmpdir, 'net/imput/helium/database'))
     with open(os.path.join(tmpdir, 'net/imput/helium/database/HeliumDbHelper.java'), 'w') as f:
         f.write('''package net.imput.helium.database;
@@ -63,6 +69,10 @@ public class HeliumDbHelper {
     public interface Callback<T> { void onComplete(T result); }
     public static HeliumDbHelper getInstance(android.content.Context c) { return new HeliumDbHelper(); }
     public void searchSuggestions(String q, int m, Callback<List<SearchSuggestion>> cb) { cb.onComplete(new ArrayList<>()); }
+    public void getAllBookmarks(Callback<List<BookmarkRecord>> cb) { cb.onComplete(new ArrayList<>()); }
+    public void getRecentHistory(int limit, Callback<List<HistoryRecord>> cb) { cb.onComplete(new ArrayList<>()); }
+    public void addBookmark(String url, String title, Callback<Boolean> cb) { if (cb != null) cb.onComplete(true); }
+    public void recordVisit(String url, String title) {}
 }''')
 
     os.makedirs(os.path.join(tmpdir, 'android/net'))
@@ -137,6 +147,8 @@ public class Uri {
         os.path.join(tmpdir, 'android/webkit/WebView.java'),
         os.path.join(tmpdir, 'android/webkit/WebResourceResponse.java'),
         os.path.join(tmpdir, 'android/net/Uri.java'),
+        os.path.join(tmpdir, 'android/os/Looper.java'),
+        os.path.join(tmpdir, 'android/os/Handler.java'),
         os.path.join(tmpdir, 'net/imput/helium/database/HeliumDbHelper.java'),
         'helium-android/src/main/java/net/imput/helium/preferences/HeliumPreferences.java',
         'helium-android/src/main/java/net/imput/helium/extensions/ExtensionItem.java',
@@ -146,7 +158,11 @@ public class Uri {
         'helium-android/src/main/java/net/imput/helium/search/bangs/BangsRouter.java',
         'helium-android/src/main/java/net/imput/helium/privacy/tracker/UrlTrackerStripper.java',
         'helium-android/src/main/java/net/imput/helium/privacy/https/HttpsUpgrader.java',
+        'helium-android/src/main/java/net/imput/helium/database/BookmarkRecord.java',
+        'helium-android/src/main/java/net/imput/helium/database/HistoryRecord.java',
         'helium-android/src/main/java/net/imput/helium/sync/VaultCrypto.java',
+        'helium-android/src/main/java/net/imput/helium/sync/VaultBundle.java',
+        'helium-android/src/main/java/net/imput/helium/sync/VaultSyncEngine.java',
         'helium-android/src/main/java/net/imput/helium/sync/VaultClient.java',
         'helium-android/src/main/java/net/imput/helium/search/SearchSuggestion.java',
         'helium-android/src/main/java/net/imput/helium/search/SearchSuggestionEngine.java'
@@ -164,6 +180,7 @@ public class Uri {
         'helium-android/src/test/java/net/imput/helium/UrlTrackerStripperTest.java',
         'helium-android/src/test/java/net/imput/helium/HttpsUpgraderTest.java',
         'helium-android/src/test/java/net/imput/helium/VaultCryptoTest.java',
+        'helium-android/src/test/java/net/imput/helium/VaultBundleTest.java',
         'helium-android/src/test/java/net/imput/helium/TabSessionTest.java',
         'helium-android/src/test/java/net/imput/helium/SearchSuggestionTest.java'
     ], check=True)
@@ -181,6 +198,7 @@ public class Uri {
         'net.imput.helium.UrlTrackerStripperTest',
         'net.imput.helium.HttpsUpgraderTest',
         'net.imput.helium.VaultCryptoTest',
+        'net.imput.helium.VaultBundleTest',
         'net.imput.helium.TabSessionTest',
         'net.imput.helium.SearchSuggestionTest'
     ], capture_output=True, text=True)

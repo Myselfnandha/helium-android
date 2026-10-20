@@ -91,7 +91,7 @@ public final class VaultCrypto {
 
             byte[] decrypted = cipher.doFinal(ciphertext);
             return new String(decrypted, StandardCharsets.UTF_8);
-        } catch (JSONException e) {
+        } catch (JSONException | IllegalArgumentException e) {
             throw new GeneralSecurityException("Invalid envelope payload", e);
         }
     }

@@ -40,6 +40,7 @@ import net.imput.helium.browser.ui.BookmarksHistoryDialogFragment;
 import net.imput.helium.browser.ui.PrivacyShieldDialogFragment;
 import net.imput.helium.browser.ui.SuggestionsAdapter;
 import net.imput.helium.browser.ui.TabsDialogFragment;
+import net.imput.helium.browser.ui.VaultSyncDialogFragment;
 import net.imput.helium.database.HeliumDbHelper;
 import net.imput.helium.extensions.ExtensionRuntimeInjector;
 import net.imput.helium.extensions.HeliumExtensionsActivity;
@@ -535,8 +536,9 @@ public class HeliumMainActivity extends AppCompatActivity implements
         popup.getMenu().add(0, 6, 5, mIsDesktopMode ? "Mobile Site" : "Desktop Site");
         popup.getMenu().add(0, 7, 6, "Extensions");
         popup.getMenu().add(0, 8, 7, "DevTools (Eruda)");
-        popup.getMenu().add(0, 9, 8, "Clear Browsing Data");
-        popup.getMenu().add(0, 10, 9, "Settings");
+        popup.getMenu().add(0, 11, 8, "Private Vault Sync");
+        popup.getMenu().add(0, 9, 9, "Clear Browsing Data");
+        popup.getMenu().add(0, 10, 10, "Settings");
 
         popup.setOnMenuItemClickListener(this::onOverflowMenuItemClick);
         popup.show();
@@ -572,6 +574,9 @@ public class HeliumMainActivity extends AppCompatActivity implements
                     Toast.makeText(this, "DevTools Injected", Toast.LENGTH_SHORT).show();
                 }
                 return true;
+            case 11: // Private Vault Sync
+                showVaultSyncDialog();
+                return true;
             case 9: // Clear Browsing Data
                 mDbHelper.clearAllBrowsingData(() -> {
                     WebView current = getActiveWebView();
@@ -588,6 +593,11 @@ public class HeliumMainActivity extends AppCompatActivity implements
             default:
                 return false;
         }
+    }
+
+    private void showVaultSyncDialog() {
+        VaultSyncDialogFragment dialog = VaultSyncDialogFragment.newInstance();
+        dialog.show(getSupportFragmentManager(), "vault_sync_dialog");
     }
 
     private void bookmarkCurrentPage() {

@@ -6,35 +6,49 @@ import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
 import net.imput.helium.database.BookmarkRecord;
+import net.imput.helium.database.HistoryRecord;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * VaultBundle: State delta payload container for Helium bookmarks, settings, and sync objects.
+ * VaultBundle: Serializable data bundle containing encrypted bookmarks and history
+ * for Helium Private Vault Zero-Knowledge synchronization and QR pairing.
  */
 public final class VaultBundle {
 
-    private final long mTimestamp;
-    private final List<BookmarkRecord> mBookmarks;
-    private final String mSearchEngine;
-    private final boolean mAdblockEnabled;
-    private final boolean mHttpsOnlyEnabled;
+    public static final String VAULT_PREFIX = "helium-vault:v1:";
+    private static final String KEY_VERSION = "version";
+    private static final String KEY_TIMESTAMP = "timestamp";
+    private static final String KEY_SOURCE = "source";
+    private static final String KEY_BOOKMARKS = "bookmarks";
+    private static final String KEY_HISTORY = "history";
 
-    public VaultBundle(long timestamp,
+    private final long mTimestamp;
+    private final String mSource;
+    private final List<BookmarkRecord> mBookmarks;
+    private final List<HistoryRecord> mHistory;
+
+    public VaultBundle(@NonNull List<BookmarkRecord> bookmarks, @NonNull List<HistoryRecord> history) {
+        this(System.currentTimeMillis(), "Helium-Android", bookmarks, history);
+    }
+
+    public VaultBundle(long timestamp, @NonNull String source,
                        @NonNull List<BookmarkRecord> bookmarks,
-                       @NonNull String searchEngine,
-                       boolean adblockEnabled,
-                       boolean httpsOnlyEnabled) {
+                       @NonNull List<HistoryRecord> history) {
         mTimestamp = timestamp;
+        mSource = source;
         mBookmarks = new ArrayList<>(bookmarks);
-        mSearchEngine = searchEngine;
-        mAdblockEnabled = adblockEnabled;
-        mHttpsOnlyEnabled = httpsOnlyEnabled;
+        mHistory = new ArrayList<>(history);
     }
 
     public long getTimestamp() {
         return mTimestamp;
+    }
+
+    @NonNull
+    public String getSource() {
+        return mSource;
     }
 
     @NonNull
@@ -43,73 +57,102 @@ public final class VaultBundle {
     }
 
     @NonNull
-    public String getSearchEngine() {
-        return mSearchEngine;
-    }
-
-    public boolean isAdblockEnabled() {
-        return mAdblockEnabled;
-    }
-
-    public boolean isHttpsOnlyEnabled() {
-        return mHttpsOnlyEnabled;
+    public List<HistoryRecord> getHistory() {
+        return mHistory;
     }
 
     @NonNull
-    public String toPlainJson() throws JSONException {
+    public String toJson() throws JSONException {
         JSONObject root = new JSONObject();
-        root.put("timestamp", mTimestamp);
-        root.put("search_engine", mSearchEngine);
-        root.put("adblock_enabled", mAdblockEnabled);
-        root.put("https_only_enabled", mHttpsOnlyEnabled);
+        root.put(KEY_VERSION, 1);
+        root.put(KEY_TIMESTAMP, mTimestamp);
+        root.put(KEY_SOURCE, mSource);
 
         JSONArray bArray = new JSONArray();
         for (BookmarkRecord b : mBookmarks) {
             JSONObject bObj = new JSONObject();
-            bObj.put("id", b.getId());
             bObj.put("url", b.getUrl());
             bObj.put("title", b.getTitle());
-            bObj.put("created_at", b.getCreatedAt());
+            bObj.put("createdAt", b.getCreatedAt());
             bArray.put(bObj);
         }
-        root.put("bookmarks", bArray);
+        root.put(KEY_BOOKMARKS, bArray);
+
+        JSONArray hArray = new JSONArray();
+        for (HistoryRecord h : mHistory) {
+            JSONObject hObj = new JSONObject();
+            hObj.put("url", h.getUrl());
+            hObj.put("title", h.getTitle());
+            hObj.put("visitCount", h.getVisitCount());
+            hObj.put("lastVisitedAt", h.getLastVisitedAt());
+            hArray.put(hObj);
+        }
+        root.put(KEY_HISTORY, hArray);
 
         return root.toString();
     }
 
     @NonNull
-    public static VaultBundle fromPlainJson(@NonNull String jsonString) throws JSONException {
+    public static VaultBundle fromJson(@NonNull String jsonString) throws JSONException {
         JSONObject root = new JSONObject(jsonString);
-        long ts = root.optLong("timestamp", System.currentTimeMillis());
-        String engine = root.optString("search_engine", "duckduckgo");
-        boolean adblock = root.optBoolean("adblock_enabled", true);
-        boolean httpsOnly = root.optBoolean("https_only_enabled", true);
+        long timestamp = root.optLong(KEY_TIMESTAMP, System.currentTimeMillis());
+        String source = root.optString(KEY_SOURCE, "Unknown");
 
         List<BookmarkRecord> bookmarks = new ArrayList<>();
-        JSONArray bArray = root.optJSONArray("bookmarks");
+        JSONArray bArray = root.optJSONArray(KEY_BOOKMARKS);
         if (bArray != null) {
             for (int i = 0; i < bArray.length(); i++) {
                 JSONObject bObj = bArray.getJSONObject(i);
-                bookmarks.add(new BookmarkRecord(
-                    bObj.optLong("id", i + 1),
-                    bObj.getString("url"),
-                    bObj.optString("title", ""),
-                    bObj.optLong("created_at", System.currentTimeMillis())
-                ));
+                String url = bObj.optString("url");
+                String title = bObj.optString("title", url);
+                long createdAt = bObj.optLong("createdAt", System.currentTimeMillis());
+                if (!url.isEmpty()) {
+                    bookmarks.add(new BookmarkRecord(i + 1, url, title, createdAt));
+                }
             }
         }
-        return new VaultBundle(ts, bookmarks, engine, adblock, httpsOnly);
+
+        List<HistoryRecord> history = new ArrayList<>();
+        JSONArray hArray = root.optJSONArray(KEY_HISTORY);
+        if (hArray != null) {
+            for (int i = 0; i < hArray.length(); i++) {
+                JSONObject hObj = hArray.getJSONObject(i);
+                String url = hObj.optString("url");
+                String title = hObj.optString("title", url);
+                int count = hObj.optInt("visitCount", 1);
+                long visitedAt = hObj.optLong("lastVisitedAt", System.currentTimeMillis());
+                if (!url.isEmpty()) {
+                    history.add(new HistoryRecord(i + 1, url, title, count, visitedAt));
+                }
+            }
+        }
+
+        return new VaultBundle(timestamp, source, bookmarks, history);
     }
 
+    /**
+     * Encrypts the entire bundle using AES-256-GCM + PBKDF2 with user passphrase.
+     * Returns a prefixed vault payload string.
+     */
     @NonNull
     public String encryptBundle(@NonNull String password) throws GeneralSecurityException, JSONException {
-        return VaultCrypto.encrypt(toPlainJson(), password);
+        String json = toJson();
+        String encryptedEnvelope = VaultCrypto.encrypt(json, password);
+        return VAULT_PREFIX + encryptedEnvelope;
     }
 
+    /**
+     * Decrypts a prefixed or raw encrypted vault envelope and reconstructs the VaultBundle.
+     */
     @NonNull
-    public static VaultBundle decryptBundle(@NonNull String encryptedEnvelope, @NonNull String password)
+    public static VaultBundle decryptBundle(@NonNull String payload, @NonNull String password)
             throws GeneralSecurityException, JSONException {
-        String plain = VaultCrypto.decrypt(encryptedEnvelope, password);
-        return fromPlainJson(plain);
+        String cleaned = payload.trim();
+        if (cleaned.startsWith(VAULT_PREFIX)) {
+            cleaned = cleaned.substring(VAULT_PREFIX.length()).trim();
+        }
+
+        String decryptedJson = VaultCrypto.decrypt(cleaned, password);
+        return fromJson(decryptedJson);
     }
 }

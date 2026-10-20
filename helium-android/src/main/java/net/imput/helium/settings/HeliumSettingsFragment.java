@@ -129,5 +129,15 @@ public class HeliumSettingsFragment extends PreferenceFragmentCompat {
                 }
             });
         }
+
+        Preference syncPairPref = findPreference("helium_sync_pair_device");
+        if (syncPairPref != null) {
+            syncPairPref.setOnPreferenceClickListener(preference -> {
+                net.imput.helium.browser.ui.VaultSyncDialogFragment dialog =
+                        net.imput.helium.browser.ui.VaultSyncDialogFragment.newInstance();
+                dialog.show(getParentFragmentManager(), "vault_sync_dialog");
+                return true;
+            });
+        }
     }
 }
