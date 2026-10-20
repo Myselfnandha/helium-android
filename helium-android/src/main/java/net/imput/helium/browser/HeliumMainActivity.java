@@ -296,6 +296,10 @@ public class HeliumMainActivity extends AppCompatActivity implements
         // Attach Download Handler
         webView.setDownloadListener(mDownloadHandler);
 
+        // Attach WebExtension JavaScript API bridge
+        webView.addJavascriptInterface(new net.imput.helium.extensions.WebExtensionApiBridge(this),
+                net.imput.helium.extensions.WebExtensionApiBridge.BRIDGE_JS_NAME);
+
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageStarted(WebView view, String url, Bitmap favicon) {

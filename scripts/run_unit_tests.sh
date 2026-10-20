@@ -36,7 +36,7 @@ with tempfile.TemporaryDirectory() as tmpdir:
 
     os.makedirs(os.path.join(tmpdir, 'android/content'))
     with open(os.path.join(tmpdir, 'android/content/SharedPreferences.java'), 'w') as f:
-        f.write('package android.content; public interface SharedPreferences { interface Editor { Editor putBoolean(String k, boolean v); Editor putString(String k, String v); void apply(); } boolean getBoolean(String k, boolean def); String getString(String k, String def); Editor edit(); }')
+        f.write('package android.content; public interface SharedPreferences { interface Editor { Editor putBoolean(String k, boolean v); Editor putString(String k, String v); Editor remove(String k); Editor clear(); void apply(); } boolean contains(String k); java.util.Map<String, ?> getAll(); boolean getBoolean(String k, boolean def); String getString(String k, String def); Editor edit(); }')
     with open(os.path.join(tmpdir, 'android/content/Context.java'), 'w') as f:
         f.write('package android.content; public abstract class Context { public static final int MODE_PRIVATE = 0; public abstract Context getApplicationContext(); public abstract SharedPreferences getSharedPreferences(String n, int m); public abstract java.io.File getFilesDir(); }')
 
@@ -49,8 +49,10 @@ with tempfile.TemporaryDirectory() as tmpdir:
         f.write('package android.graphics; public class Bitmap { public boolean isRecycled() { return false; } public void recycle() {} }')
 
     os.makedirs(os.path.join(tmpdir, 'android/webkit'))
+    with open(os.path.join(tmpdir, 'android/webkit/JavascriptInterface.java'), 'w') as f:
+        f.write('package android.webkit; import java.lang.annotation.*; @Retention(RetentionPolicy.CLASS) @Target({ElementType.METHOD}) public @interface JavascriptInterface {}')
     with open(os.path.join(tmpdir, 'android/webkit/WebView.java'), 'w') as f:
-        f.write('package android.webkit; public class WebView { public void onPause() {} public void onResume() {} public void destroy() {} public void stopLoading() {} public void loadUrl(String u) {} public void clearHistory() {} public void removeAllViews() {} }')
+        f.write('package android.webkit; public class WebView { public void onPause() {} public void onResume() {} public void destroy() {} public void stopLoading() {} public void loadUrl(String u) {} public void clearHistory() {} public void removeAllViews() {} public void addJavascriptInterface(Object o, String n) {} }')
     with open(os.path.join(tmpdir, 'android/webkit/WebResourceResponse.java'), 'w') as f:
         f.write('package android.webkit; import java.io.InputStream; import java.util.Map; public class WebResourceResponse { public WebResourceResponse(String mime, String enc, int code, String reason, Map<String, String> headers, InputStream data) {} }')
 
@@ -145,6 +147,7 @@ public class Uri {
         os.path.join(tmpdir, 'android/util/Log.java'),
         os.path.join(tmpdir, 'android/graphics/Bitmap.java'),
         os.path.join(tmpdir, 'android/webkit/WebView.java'),
+        os.path.join(tmpdir, 'android/webkit/JavascriptInterface.java'),
         os.path.join(tmpdir, 'android/webkit/WebResourceResponse.java'),
         os.path.join(tmpdir, 'android/net/Uri.java'),
         os.path.join(tmpdir, 'android/os/Looper.java'),
@@ -152,6 +155,7 @@ public class Uri {
         os.path.join(tmpdir, 'net/imput/helium/database/HeliumDbHelper.java'),
         'helium-android/src/main/java/net/imput/helium/preferences/HeliumPreferences.java',
         'helium-android/src/main/java/net/imput/helium/extensions/ExtensionItem.java',
+        'helium-android/src/main/java/net/imput/helium/extensions/WebExtensionApiBridge.java',
         'helium-android/src/main/java/net/imput/helium/adblock/AdBlockEngine.java',
         'helium-android/src/main/java/net/imput/helium/browser/tab/Tab.java',
         'helium-android/src/main/java/net/imput/helium/browser/tab/TabManager.java',
@@ -174,6 +178,7 @@ public class Uri {
         'helium-android/src/test/java/net/imput/helium/HeliumPreferencesTest.java',
         'helium-android/src/test/java/net/imput/helium/VaultClientTest.java',
         'helium-android/src/test/java/net/imput/helium/ExtensionManagerTest.java',
+        'helium-android/src/test/java/net/imput/helium/WebExtensionApiBridgeTest.java',
         'helium-android/src/test/java/net/imput/helium/AdBlockEngineTest.java',
         'helium-android/src/test/java/net/imput/helium/TabManagerTest.java',
         'helium-android/src/test/java/net/imput/helium/BangsRouterTest.java',
@@ -192,6 +197,7 @@ public class Uri {
         'net.imput.helium.HeliumPreferencesTest',
         'net.imput.helium.VaultClientTest',
         'net.imput.helium.ExtensionManagerTest',
+        'net.imput.helium.WebExtensionApiBridgeTest',
         'net.imput.helium.AdBlockEngineTest',
         'net.imput.helium.TabManagerTest',
         'net.imput.helium.BangsRouterTest',

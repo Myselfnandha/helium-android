@@ -89,6 +89,9 @@ public class ExtensionRuntimeInjector {
      */
     private void injectExtension(WebView webView, ExtensionItem ext, String url) {
         String id = ext.getId();
+        // Inject chrome.runtime and chrome.storage polyfills for this extension
+        executeSafeScript(webView, WebExtensionApiBridge.getClientPolyfillScript(id));
+
         if ("darkreader".equalsIgnoreCase(id) || ext.getName().toLowerCase().contains("dark reader")) {
             injectStyleRule(webView, DARK_READER_CSS, "helium-darkreader-style");
         } else if ("ublock_origin".equalsIgnoreCase(id) || ext.getName().toLowerCase().contains("ublock")) {
