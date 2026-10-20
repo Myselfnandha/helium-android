@@ -60,3 +60,7 @@ This document records durable architectural decisions, system invariants, and in
 ### 14. Tab Organization, Granular Permissions, and Profile Environments
 - **Decision**: `TabGroup` and pinned tabs (M06) protect critical workflows during bulk closure and serialize cleanly across sessions. `SitePermissionsManager` (M18) manages per-origin sensor grants via in-memory caches and SQLite. `ProfileManager` (M21) isolates browsing environments, `PwaShortcutManager` (M25) pins web apps via Android `ShortcutManager`, and `HeliumDiagnostics` (M28) enforces strict URL and credential redaction.
 - **Rationale**: Delivers comprehensive desktop-to-mobile PRD parity while preserving touch ergonomics, zero-network battery efficiency, and zero-knowledge privacy.
+
+### 15. Standalone PWA Architecture & Manifest Resolution
+- **Decision**: Home-screen web applications (M25) parse standard W3C Web App Manifest JSON via `WebAppManifest`, resolving relative URLs against base origins and extracting display modes and theme colors. Pinned shortcuts launch into `PwaActivity` configured with `android:documentLaunchMode="intoExisting"` for independent Android Recents task switcher cards, frameless topbar presentation, and out-of-scope link breakout to `HeliumMainActivity`.
+- **Rationale**: Replaces clunky browser tabs with native app window presentation, dynamic status bar tinting, built-in adblocking, and smooth task switcher multitasking without native APK overhead.
