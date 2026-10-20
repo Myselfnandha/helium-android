@@ -75,6 +75,25 @@ if [ "$FAILED" -eq 0 ]; then
     echo -e "${GREEN}✓ All resource color references are defined${NC}"
 fi
 
+# 5. Java Import Integrity check
+echo -e "\n${BLUE}[5/5] Checking Java symbol import integrity...${NC}"
+JAVA_IMPORT_ERRORS=0
+for f in $(find helium-android/src/main/java -name "*.java"); do
+    if grep -E '\bBuild\.VERSION' "$f" >/dev/null && ! grep -E 'import android\.os\.Build;' "$f" >/dev/null; then
+        echo -e "${RED}✗ ${f}: missing import android.os.Build;${NC}"
+        JAVA_IMPORT_ERRORS=$((JAVA_IMPORT_ERRORS + 1))
+    fi
+    if grep -E '\bToast\.makeText' "$f" >/dev/null && ! grep -E 'import android\.widget\.Toast;' "$f" >/dev/null; then
+        echo -e "${RED}✗ ${f}: missing import android.widget.Toast;${NC}"
+        JAVA_IMPORT_ERRORS=$((JAVA_IMPORT_ERRORS + 1))
+    fi
+done
+if [ "$JAVA_IMPORT_ERRORS" -gt 0 ]; then
+    FAILED=$((FAILED + JAVA_IMPORT_ERRORS))
+else
+    echo -e "${GREEN}✓ All Java SDK symbol imports verified${NC}"
+fi
+
 echo "--------------------------------------------------------"
 if [ "$FAILED" -gt 0 ]; then
     echo -e "${RED}Linting finished with ${FAILED} errors.${NC}"

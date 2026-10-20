@@ -62,6 +62,10 @@ Before taking any architectural, coding, or tooling action, the agent must sweep
 - **Gotcha**: Unit testing singleton managers (`TabManager.getInstance()`, `ProfileManager`) retains mutated in-memory collections (e.g., `mGroups`, `mTabs`) across test runs within the same JVM process, causing inter-test pollution and assertions failing with unexpected collection sizes.
 - **Rule**: Implement explicit teardown/reset methods (e.g. `clearGroups()`, `closeAllTabs(true)`) and invoke them in JUnit `@Before setUp()` fixtures to ensure clean, isolated state for every test case.
 
+### 9. Android OS Symbol Scoping in Headless Test Harnesses
+- **Gotcha**: Adding standard Android SDK classes (e.g. `Build.VERSION.SDK_INT`) in Activity files that are excluded from lightweight JVM mock harnesses passes `./scripts/run_unit_tests.sh` locally but fails with `error: package Build does not exist` during full Gradle `compileReleaseJavaWithJavac` on CI.
+- **Rule**: Explicitly import all SDK packages (e.g. `import android.os.Build;`) and run an automated AST/import scanner in `./scripts/lint.sh` to verify symbol import completeness across all Java sources before pushing release tags.
+
 ---
 
 ## 🔄 The 2-Way Immunization Protocol
