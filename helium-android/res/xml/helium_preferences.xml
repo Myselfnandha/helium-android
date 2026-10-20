@@ -56,6 +56,18 @@
             android:title="Background Media Playback" />
     </PreferenceCategory>
 
+    <!-- Category: Tabs & Session Management -->
+    <PreferenceCategory
+        android:title="Tabs &amp; Session"
+        app:iconSpaceReserved="false">
+
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="helium_restore_tabs_on_startup"
+            android:summary="Restore previous open tabs when reopening the browser"
+            android:title="Restore Tabs on Startup" />
+    </PreferenceCategory>
+
     <!-- Category 3: Extension Engine -->
     <PreferenceCategory
         android:title="@string/settings_helium_extensions_category"

@@ -109,6 +109,12 @@ public class HeliumSettingsFragment extends PreferenceFragmentCompat {
                     public void onChange(boolean val) { mHeliumPrefs.setVaultSyncEnabled(val); }
                 });
 
+        bindSwitch(HeliumPreferences.KEY_RESTORE_TABS_ON_STARTUP, mHeliumPrefs.isRestoreTabsOnStartupEnabled(),
+                new OnBooleanPreferenceChangeListener() {
+                    @Override
+                    public void onChange(boolean val) { mHeliumPrefs.setRestoreTabsOnStartupEnabled(val); }
+                });
+
         Preference manageExtPref = findPreference("helium_manage_extensions");
         if (manageExtPref != null) {
             manageExtPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {

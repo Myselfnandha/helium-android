@@ -54,6 +54,17 @@ with tempfile.TemporaryDirectory() as tmpdir:
     with open(os.path.join(tmpdir, 'android/webkit/WebResourceResponse.java'), 'w') as f:
         f.write('package android.webkit; import java.io.InputStream; import java.util.Map; public class WebResourceResponse { public WebResourceResponse(String mime, String enc, int code, String reason, Map<String, String> headers, InputStream data) {} }')
 
+    os.makedirs(os.path.join(tmpdir, 'net/imput/helium/database'))
+    with open(os.path.join(tmpdir, 'net/imput/helium/database/HeliumDbHelper.java'), 'w') as f:
+        f.write('''package net.imput.helium.database;
+import java.util.*;
+import net.imput.helium.search.SearchSuggestion;
+public class HeliumDbHelper {
+    public interface Callback<T> { void onComplete(T result); }
+    public static HeliumDbHelper getInstance(android.content.Context c) { return new HeliumDbHelper(); }
+    public void searchSuggestions(String q, int m, Callback<List<SearchSuggestion>> cb) { cb.onComplete(new ArrayList<>()); }
+}''')
+
     os.makedirs(os.path.join(tmpdir, 'android/net'))
     with open(os.path.join(tmpdir, 'android/net/Uri.java'), 'w') as f:
         f.write('''package android.net;
@@ -126,6 +137,7 @@ public class Uri {
         os.path.join(tmpdir, 'android/webkit/WebView.java'),
         os.path.join(tmpdir, 'android/webkit/WebResourceResponse.java'),
         os.path.join(tmpdir, 'android/net/Uri.java'),
+        os.path.join(tmpdir, 'net/imput/helium/database/HeliumDbHelper.java'),
         'helium-android/src/main/java/net/imput/helium/preferences/HeliumPreferences.java',
         'helium-android/src/main/java/net/imput/helium/extensions/ExtensionItem.java',
         'helium-android/src/main/java/net/imput/helium/adblock/AdBlockEngine.java',
@@ -135,7 +147,9 @@ public class Uri {
         'helium-android/src/main/java/net/imput/helium/privacy/tracker/UrlTrackerStripper.java',
         'helium-android/src/main/java/net/imput/helium/privacy/https/HttpsUpgrader.java',
         'helium-android/src/main/java/net/imput/helium/sync/VaultCrypto.java',
-        'helium-android/src/main/java/net/imput/helium/sync/VaultClient.java'
+        'helium-android/src/main/java/net/imput/helium/sync/VaultClient.java',
+        'helium-android/src/main/java/net/imput/helium/search/SearchSuggestion.java',
+        'helium-android/src/main/java/net/imput/helium/search/SearchSuggestionEngine.java'
     ], check=True)
 
     # Compile Tests
@@ -149,7 +163,9 @@ public class Uri {
         'helium-android/src/test/java/net/imput/helium/BangsRouterTest.java',
         'helium-android/src/test/java/net/imput/helium/UrlTrackerStripperTest.java',
         'helium-android/src/test/java/net/imput/helium/HttpsUpgraderTest.java',
-        'helium-android/src/test/java/net/imput/helium/VaultCryptoTest.java'
+        'helium-android/src/test/java/net/imput/helium/VaultCryptoTest.java',
+        'helium-android/src/test/java/net/imput/helium/TabSessionTest.java',
+        'helium-android/src/test/java/net/imput/helium/SearchSuggestionTest.java'
     ], check=True)
 
     # Run Tests
@@ -164,7 +180,9 @@ public class Uri {
         'net.imput.helium.BangsRouterTest',
         'net.imput.helium.UrlTrackerStripperTest',
         'net.imput.helium.HttpsUpgraderTest',
-        'net.imput.helium.VaultCryptoTest'
+        'net.imput.helium.VaultCryptoTest',
+        'net.imput.helium.TabSessionTest',
+        'net.imput.helium.SearchSuggestionTest'
     ], capture_output=True, text=True)
 
     print(res.stdout)

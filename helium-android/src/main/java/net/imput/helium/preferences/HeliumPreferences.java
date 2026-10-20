@@ -152,4 +152,23 @@ public final class HeliumPreferences {
     public void setDefaultSearchEngine(String engineUrl) {
         mPrefs.edit().putString(KEY_DEFAULT_SEARCH_ENGINE, engineUrl).apply();
     }
+
+    public static final String KEY_RESTORE_TABS_ON_STARTUP = "helium_restore_tabs_on_startup";
+    public static final String KEY_SAVED_TAB_SESSION = "helium_saved_tab_session";
+
+    public boolean isRestoreTabsOnStartupEnabled() {
+        return mPrefs.getBoolean(KEY_RESTORE_TABS_ON_STARTUP, true);
+    }
+
+    public void setRestoreTabsOnStartupEnabled(boolean enabled) {
+        mPrefs.edit().putBoolean(KEY_RESTORE_TABS_ON_STARTUP, enabled).apply();
+    }
+
+    public String getSavedTabSession() {
+        return mPrefs.getString(KEY_SAVED_TAB_SESSION, "");
+    }
+
+    public void setSavedTabSession(String sessionJson) {
+        mPrefs.edit().putString(KEY_SAVED_TAB_SESSION, sessionJson).apply();
+    }
 }

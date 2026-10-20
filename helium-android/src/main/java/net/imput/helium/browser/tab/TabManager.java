@@ -179,4 +179,79 @@ public final class TabManager {
             active.getWebView().onResume();
         }
     }
+
+    /**
+     * Serializes all non-incognito open tabs and active selection into JSON.
+     */
+    @NonNull
+    public synchronized String serializeSession() {
+        try {
+            org.json.JSONObject root = new org.json.JSONObject();
+            root.put("activeId", mActiveTabId);
+
+            org.json.JSONArray array = new org.json.JSONArray();
+            for (Tab tab : mTabs) {
+                // Never persist private / incognito tabs
+                if (!tab.isIncognito()) {
+                    org.json.JSONObject t = new org.json.JSONObject();
+                    t.put("id", tab.getId());
+                    t.put("url", tab.getUrl());
+                    t.put("title", tab.getTitle());
+                    array.put(t);
+                }
+            }
+            root.put("tabs", array);
+            return root.toString();
+        } catch (org.json.JSONException e) {
+            return "";
+        }
+    }
+
+    /**
+     * Restores open tabs and active tab from a serialized session JSON.
+     * Returns true if at least one tab was successfully restored.
+     */
+    public synchronized boolean restoreSession(@Nullable String sessionJson) {
+        if (sessionJson == null || sessionJson.trim().isEmpty()) {
+            return false;
+        }
+
+        try {
+            org.json.JSONObject root = new org.json.JSONObject(sessionJson);
+            org.json.JSONArray array = root.optJSONArray("tabs");
+            if (array == null || array.length() == 0) {
+                return false;
+            }
+
+            closeAllTabs();
+
+            String savedActiveId = root.optString("activeId", null);
+            for (int i = 0; i < array.length(); i++) {
+                org.json.JSONObject t = array.getJSONObject(i);
+                String id = t.optString("id");
+                String url = t.optString("url", "about:blank");
+                String title = t.optString("title", "New Tab");
+
+                Tab tab = new Tab(id, url, false);
+                tab.setTitle(title);
+                mTabs.add(tab);
+
+                for (TabListener l : mListeners) {
+                    l.onTabCreated(tab);
+                    l.onTabCountChanged(mTabs.size());
+                }
+            }
+
+            if (!mTabs.isEmpty()) {
+                if (savedActiveId != null && findTabById(savedActiveId) != null) {
+                    selectTab(savedActiveId);
+                } else {
+                    selectTab(mTabs.get(0).getId());
+                }
+                return true;
+            }
+        } catch (org.json.JSONException ignored) {}
+
+        return false;
+    }
 }

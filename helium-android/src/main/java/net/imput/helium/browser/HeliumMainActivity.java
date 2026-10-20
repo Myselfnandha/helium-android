@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
@@ -27,12 +29,16 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.PopupMenu;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import net.imput.helium.R;
 import net.imput.helium.adblock.AdBlockEngine;
 import net.imput.helium.browser.download.HeliumDownloadHandler;
 import net.imput.helium.browser.tab.Tab;
 import net.imput.helium.browser.tab.TabManager;
 import net.imput.helium.browser.ui.BookmarksHistoryDialogFragment;
+import net.imput.helium.browser.ui.PrivacyShieldDialogFragment;
+import net.imput.helium.browser.ui.SuggestionsAdapter;
 import net.imput.helium.browser.ui.TabsDialogFragment;
 import net.imput.helium.database.HeliumDbHelper;
 import net.imput.helium.extensions.ExtensionRuntimeInjector;
@@ -42,6 +48,8 @@ import net.imput.helium.onboarding.HeliumFirstRunActivity;
 import net.imput.helium.preferences.HeliumPreferences;
 import net.imput.helium.privacy.https.HttpsUpgrader;
 import net.imput.helium.privacy.tracker.UrlTrackerStripper;
+import net.imput.helium.search.SearchSuggestion;
+import net.imput.helium.search.SearchSuggestionEngine;
 import net.imput.helium.search.bangs.BangsRouter;
 
 /**
@@ -51,7 +59,8 @@ import net.imput.helium.search.bangs.BangsRouter;
 public class HeliumMainActivity extends AppCompatActivity implements
         TabsDialogFragment.OnTabActionListener,
         BookmarksHistoryDialogFragment.OnUrlSelectedListener,
-        TabManager.TabListener {
+        TabManager.TabListener,
+        SuggestionsAdapter.OnSuggestionClickListener {
 
     private static final String STARTPAGE_URL = "file:///android_asset/startpage/index.html";
     private static final int REQUEST_FIRST_RUN = 1001;
@@ -70,6 +79,8 @@ public class HeliumMainActivity extends AppCompatActivity implements
     private TextView mTvTabCount;
     private ImageView mBtnMore;
     private ProgressBar mProgressPageLoad;
+    private RecyclerView mRvSuggestions;
+    private SuggestionsAdapter mSuggestionsAdapter;
 
     // Fullscreen video state
     private View mCustomView;
@@ -127,6 +138,7 @@ public class HeliumMainActivity extends AppCompatActivity implements
         mTvTabCount = findViewById(R.id.tv_tab_count);
         mBtnMore = findViewById(R.id.btn_more);
         mProgressPageLoad = findViewById(R.id.progress_page_load);
+        mRvSuggestions = findViewById(R.id.rv_omnibox_suggestions);
 
         mBtnRefresh.setOnClickListener(v -> {
             WebView active = getActiveWebView();
@@ -135,7 +147,10 @@ public class HeliumMainActivity extends AppCompatActivity implements
             }
         });
 
+        mBtnSslLock.setOnClickListener(v -> showPrivacyShieldDialog());
+
         mBtnTabsContainer.setOnClickListener(v -> {
+            hideSuggestions();
             TabsDialogFragment dialog = TabsDialogFragment.newInstance();
             dialog.setOnTabActionListener(this);
             dialog.show(getSupportFragmentManager(), "tabs_dialog");
@@ -143,25 +158,112 @@ public class HeliumMainActivity extends AppCompatActivity implements
 
         mBtnMore.setOnClickListener(this::showOverflowMenu);
 
+        // Omnibox Editor Action
         mEtOmnibox.setOnEditorActionListener((TextView v, int actionId, KeyEvent event) -> {
             if (actionId == EditorInfo.IME_ACTION_GO || actionId == EditorInfo.IME_ACTION_DONE
                     || (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN)) {
                 String query = mEtOmnibox.getText().toString().trim();
                 navigateTo(query);
                 hideKeyboard();
+                hideSuggestions();
                 return true;
             }
             return false;
         });
 
+        // Omnibox Real-Time Suggestions Setup
+        mRvSuggestions.setLayoutManager(new LinearLayoutManager(this));
+        mSuggestionsAdapter = new SuggestionsAdapter(this);
+        mRvSuggestions.setAdapter(mSuggestionsAdapter);
+
+        mEtOmnibox.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (mEtOmnibox.hasFocus() && s != null && s.length() > 0) {
+                    SearchSuggestionEngine.query(HeliumMainActivity.this, s.toString(), 6, suggestions -> {
+                        if (!suggestions.isEmpty() && mEtOmnibox.hasFocus()) {
+                            mSuggestionsAdapter.setSuggestions(suggestions);
+                            mRvSuggestions.setVisibility(View.VISIBLE);
+                        } else {
+                            hideSuggestions();
+                        }
+                    });
+                } else {
+                    hideSuggestions();
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+
+        mEtOmnibox.setOnFocusChangeListener((v, hasFocus) -> {
+            if (!hasFocus) {
+                hideSuggestions();
+            }
+        });
+
         updateTabBadge();
+    }
+
+    private void showPrivacyShieldDialog() {
+        WebView active = getActiveWebView();
+        String currentUrl = (active != null) ? active.getUrl() : "";
+        PrivacyShieldDialogFragment dialog = PrivacyShieldDialogFragment.newInstance(currentUrl);
+        dialog.show(getSupportFragmentManager(), "privacy_shield_dialog");
+    }
+
+    private void hideSuggestions() {
+        if (mRvSuggestions != null) {
+            mRvSuggestions.setVisibility(View.GONE);
+            mSuggestionsAdapter.clear();
+        }
+    }
+
+    @Override
+    public void onSuggestionClick(@NonNull SearchSuggestion suggestion) {
+        hideSuggestions();
+        hideKeyboard();
+
+        if (suggestion.getType() == SearchSuggestion.Type.BANG) {
+            String bangPrefix = suggestion.getTitle().split(" ")[0];
+            mEtOmnibox.setText(bangPrefix + " ");
+            mEtOmnibox.setSelection(mEtOmnibox.getText().length());
+        } else if (suggestion.getType() == SearchSuggestion.Type.SEARCH) {
+            if (suggestion.getUrl().startsWith("http://") || suggestion.getUrl().startsWith("https://")) {
+                navigateTo(suggestion.getUrl());
+            } else {
+                navigateTo(suggestion.getTitle().replace("Search for \"", "").replace("\"", ""));
+            }
+        } else {
+            navigateTo(suggestion.getUrl());
+        }
     }
 
     private void ensureInitialTab() {
         if (mTabManager.getTabCount() == 0) {
-            Tab tab = mTabManager.createTab(STARTPAGE_URL, false);
-            setupTabWebView(tab);
-            attachTabWebView(tab);
+            boolean restored = false;
+            if (mPreferences.isRestoreTabsOnStartupEnabled()) {
+                String savedSession = mPreferences.getSavedTabSession();
+                restored = mTabManager.restoreSession(savedSession);
+            }
+
+            if (!restored) {
+                Tab tab = mTabManager.createTab(STARTPAGE_URL, false);
+                setupTabWebView(tab);
+                attachTabWebView(tab);
+            } else {
+                Tab active = mTabManager.getActiveTab();
+                if (active != null) {
+                    if (active.getWebView() == null) {
+                        setupTabWebView(active);
+                    }
+                    attachTabWebView(active);
+                }
+            }
         } else {
             Tab active = mTabManager.getActiveTab();
             if (active != null) {
@@ -337,6 +439,8 @@ public class HeliumMainActivity extends AppCompatActivity implements
     }
 
     private void navigateTo(String input) {
+        hideSuggestions();
+
         WebView active = getActiveWebView();
         if (active == null) {
             ensureInitialTab();
@@ -421,6 +525,7 @@ public class HeliumMainActivity extends AppCompatActivity implements
     }
 
     private void showOverflowMenu(View anchor) {
+        hideSuggestions();
         PopupMenu popup = new PopupMenu(this, anchor);
         popup.getMenu().add(0, 1, 0, "New Tab");
         popup.getMenu().add(0, 2, 1, "New Private Tab");
@@ -567,6 +672,10 @@ public class HeliumMainActivity extends AppCompatActivity implements
         super.onPause();
         mMediaPlaybackHost.onPause(getActiveWebView());
         mTabManager.pauseBackgroundTabs();
+
+        if (mPreferences.isRestoreTabsOnStartupEnabled()) {
+            mPreferences.setSavedTabSession(mTabManager.serializeSession());
+        }
     }
 
     @Override
@@ -585,6 +694,11 @@ public class HeliumMainActivity extends AppCompatActivity implements
 
     @Override
     public void onBackPressed() {
+        if (mRvSuggestions != null && mRvSuggestions.getVisibility() == View.VISIBLE) {
+            hideSuggestions();
+            return;
+        }
+
         if (mCustomView != null) {
             // Exit fullscreen video
             if (getActiveWebView() != null && getActiveWebView().getWebChromeClient() != null) {
