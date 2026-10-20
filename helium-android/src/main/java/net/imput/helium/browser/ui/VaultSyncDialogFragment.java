@@ -196,7 +196,7 @@ public class VaultSyncDialogFragment extends BottomSheetDialogFragment {
                     mBtnImportVault.setText("Decrypt & Merge into Browser");
 
                     mTvImportStatus.setVisibility(View.VISIBLE);
-                    mTvImportStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.helium_warning_amber));
+                    mTvImportStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.helium_shield_warning));
                     mTvImportStatus.setText("Import failed: " + exception.getMessage());
                 }
             });
