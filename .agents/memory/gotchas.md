@@ -58,6 +58,10 @@ Before taking any architectural, coding, or tooling action, the agent must sweep
 - **Gotcha**: Referencing color symbols in Java UI classes (e.g. `R.color.helium_warning_amber`) that differ from resource definitions (like `R.color.helium_shield_warning`) passes script-based XML linters but breaks the Gradle compilation pipeline on CI.
 - **Rule**: Declare explicit alias definitions across both `res/values/colors.xml` and `res/values-night/colors.xml` for all semantic UI tokens to guarantee total compile-time safety across themes.
 
+### 8. Singleton State Isolation in JVM Test Suites
+- **Gotcha**: Unit testing singleton managers (`TabManager.getInstance()`, `ProfileManager`) retains mutated in-memory collections (e.g., `mGroups`, `mTabs`) across test runs within the same JVM process, causing inter-test pollution and assertions failing with unexpected collection sizes.
+- **Rule**: Implement explicit teardown/reset methods (e.g. `clearGroups()`, `closeAllTabs(true)`) and invoke them in JUnit `@Before setUp()` fixtures to ensure clean, isolated state for every test case.
+
 ---
 
 ## 🔄 The 2-Way Immunization Protocol
